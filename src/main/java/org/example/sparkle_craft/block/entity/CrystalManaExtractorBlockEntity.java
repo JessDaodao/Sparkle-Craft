@@ -88,12 +88,6 @@ public class CrystalManaExtractorBlockEntity extends BlockEntity implements Name
         }
     }
 
-    public void resetManaForPlacement() {
-        mana = 0;
-        conversionTicksRemaining = 0;
-        markDirty();
-    }
-
     @Override
     public Text getDisplayName() {
         return Text.translatable("block.sparkle-craft.crystal_mana_extractor");
