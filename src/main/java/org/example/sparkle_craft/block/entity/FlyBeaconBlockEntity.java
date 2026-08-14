@@ -21,13 +21,15 @@ import java.util.List;
 public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory {
 
     public static final int MAX_MANA = 1000;
-    public static final int MANA_PER_TICK = 1;
+    public static final int MANA_PER_CONSUMPTION = 1;
+    public static final int MANA_CONSUMPTION_INTERVAL_TICKS = 2;
     public static final int FLIGHT_RADIUS = 10;
     public static final int FLIGHT_BELOW = 5;
     public static final int FLIGHT_ABOVE = 50;
 
     private int mana;
     private boolean enabled;
+    private int consumptionTick;
     private final PropertyDelegate propertyDelegate = new PropertyDelegate() {
         @Override
         public int get(int index) {
@@ -61,7 +63,7 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
                             FlyBeaconBlockEntity blockEntity) {
         if (!(world instanceof ServerWorld serverWorld)
                 || !blockEntity.enabled
-                || blockEntity.mana < MANA_PER_TICK) {
+                || blockEntity.mana <= 0) {
             return;
         }
 
@@ -85,8 +87,12 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
         }
 
         players.forEach(FlyBeaconFlightManager::refreshFlight);
-        blockEntity.mana -= MANA_PER_TICK;
-        blockEntity.markDirty();
+        blockEntity.consumptionTick++;
+        if (blockEntity.consumptionTick >= MANA_CONSUMPTION_INTERVAL_TICKS) {
+            blockEntity.mana = Math.max(0, blockEntity.mana - MANA_PER_CONSUMPTION);
+            blockEntity.consumptionTick = 0;
+            blockEntity.markDirty();
+        }
     }
 
     public int receiveMana(int amount) {

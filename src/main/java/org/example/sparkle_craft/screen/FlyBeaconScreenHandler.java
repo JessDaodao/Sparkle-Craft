@@ -125,7 +125,7 @@ public class FlyBeaconScreenHandler extends ScreenHandler {
     }
 
     public boolean isActive() {
-        return isEnabled() && getMana() >= FlyBeaconBlockEntity.MANA_PER_TICK;
+        return isEnabled() && getMana() > 0;
     }
 
     public BlockPos getBlockPos() {
