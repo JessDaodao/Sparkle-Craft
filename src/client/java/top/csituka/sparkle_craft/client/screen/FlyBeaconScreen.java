@@ -36,9 +36,9 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
     private static final int MANA_WIDTH = 72;
     private static final int MANA_HEIGHT = 10;
     private static final int MANA_TEXTURE_X = 176;
-    private static final int TOGGLE_X = 100;
+    private static final int TOGGLE_X = 96;
     private static final int TOGGLE_Y = 47;
-    private static final int TOGGLE_WIDTH = 66;
+    private static final int TOGGLE_WIDTH = 70;
     private static final int TOGGLE_HEIGHT = 20;
 
     private final ManaBarParticleEffect manaBarParticleEffect =
