@@ -1,0 +1,180 @@
+{
+  "multipart": [
+    {
+      "when": { "north": "false" },
+      "apply": { "model": "sparkle-craft:block/mana_pipe_cap" }
+    },
+    {
+      "when": { "north": "true" },
+      "apply": { "model": "sparkle-craft:block/mana_pipe_arm" }
+    },
+    {
+      "when": { "east": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_cap",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "east": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_arm",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "south": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_cap",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "south": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_arm",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "west": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_cap",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "west": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_arm",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "up": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_cap",
+        "x": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "up": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_arm",
+        "x": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "down": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_cap",
+        "x": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "down": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_arm",
+        "x": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "north": "false" },
+      "apply": { "model": "sparkle-craft:block/mana_pipe_mana_cap" }
+    },
+    {
+      "when": { "has_mana": "true", "north": "true" },
+      "apply": { "model": "sparkle-craft:block/mana_pipe_mana_arm" }
+    },
+    {
+      "when": { "has_mana": "true", "east": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_cap",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "east": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_arm",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "south": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_cap",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "south": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_arm",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "west": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_cap",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "west": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_arm",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "up": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_cap",
+        "x": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "up": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_arm",
+        "x": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "down": "false" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_cap",
+        "x": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "has_mana": "true", "down": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_mana_arm",
+        "x": 90,
+        "uvlock": true
+      }
+    }
+  ]
+}

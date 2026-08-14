@@ -21,6 +21,7 @@ public class ModItemGroups {
                 entries.add(ModBlocks.MAGIC_CRYSTAL_ORE);
                 entries.add(ModBlocks.DEEPSLATE_MAGIC_CRYSTAL_ORE);
                 entries.add(ModBlocks.CRYSTAL_MANA_EXTRACTOR);
+                entries.add(ModBlocks.MANA_PIPE);
             })
             .build();
 

@@ -4,5 +4,6 @@
   "block.sparkle-craft.magic_crystal_ore": "魔晶矿",
   "block.sparkle-craft.deepslate_magic_crystal_ore": "深层魔晶矿",
   "block.sparkle-craft.crystal_mana_extractor": "魔化器",
+  "block.sparkle-craft.mana_pipe": "魔力管道",
   "gui.sparkle-craft.crystal_mana_extractor.mana": "魔力：%s / %s"
 }

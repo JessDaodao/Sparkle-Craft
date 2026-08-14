@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=north": {
       "model": "sparkle-craft:block/crystal_mana_extractor"
+    },
+    "facing=east": {
+      "model": "sparkle-craft:block/crystal_mana_extractor",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "sparkle-craft:block/crystal_mana_extractor",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "sparkle-craft:block/crystal_mana_extractor",
+      "y": 270
     }
   }
 }

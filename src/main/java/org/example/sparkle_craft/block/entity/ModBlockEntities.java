@@ -16,6 +16,12 @@ public class ModBlockEntities {
                     FabricBlockEntityTypeBuilder.create(CrystalManaExtractorBlockEntity::new,
                             ModBlocks.CRYSTAL_MANA_EXTRACTOR).build());
 
+    public static final BlockEntityType<ManaPipeBlockEntity> MANA_PIPE =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE,
+                    new Identifier(sparkle_craft.MOD_ID, "mana_pipe"),
+                    FabricBlockEntityTypeBuilder.create(ManaPipeBlockEntity::new,
+                            ModBlocks.MANA_PIPE).build());
+
     public static void registerModBlockEntities() {
         sparkle_craft.LOGGER.info("Registering Mod Block Entities for " + sparkle_craft.MOD_ID);
     }

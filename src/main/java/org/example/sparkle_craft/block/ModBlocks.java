@@ -11,6 +11,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.example.sparkle_craft.sparkle_craft;
 import org.example.sparkle_craft.block.custom.CrystalManaExtractorBlock;
+import org.example.sparkle_craft.block.custom.ManaPipeBlock;
 
 public class ModBlocks {
 
@@ -24,6 +25,11 @@ public class ModBlocks {
             new CrystalManaExtractorBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK)
                     .strength(3.5f)
                     .requiresTool()));
+
+    public static final Block MANA_PIPE = registerBlock("mana_pipe",
+            new ManaPipeBlock(FabricBlockSettings.copyOf(Blocks.GLASS)
+                    .strength(0.5f)
+                    .nonOpaque()));
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);

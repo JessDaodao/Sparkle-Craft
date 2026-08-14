@@ -88,6 +88,15 @@ public class CrystalManaExtractorBlockEntity extends BlockEntity implements Name
         }
     }
 
+    public int extractMana(int amount) {
+        int extracted = Math.min(mana, Math.max(0, amount));
+        if (extracted > 0) {
+            mana -= extracted;
+            markDirty();
+        }
+        return extracted;
+    }
+
     @Override
     public Text getDisplayName() {
         return Text.translatable("block.sparkle-craft.crystal_mana_extractor");
