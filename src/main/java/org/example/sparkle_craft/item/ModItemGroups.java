@@ -9,6 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.example.sparkle_craft.block.ModBlocks;
 import org.example.sparkle_craft.sparkle_craft;
+import org.example.sparkle_craft.item.ModItems;
 
 public class ModItemGroups {
 
@@ -16,6 +17,7 @@ public class ModItemGroups {
             .displayName(Text.translatable("itemGroup.sparkle-craft"))
             .icon(() -> new ItemStack(ModBlocks.MAGIC_CRYSTAL_ORE))
             .entries((displayContext, entries) -> {
+                entries.add(ModItems.MAGIC_CRYSTAL);
                 entries.add(ModBlocks.MAGIC_CRYSTAL_ORE);
                 entries.add(ModBlocks.DEEPSLATE_MAGIC_CRYSTAL_ORE);
             })
