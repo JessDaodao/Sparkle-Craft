@@ -24,14 +24,14 @@ public class CrystalManaExtractorScreenHandler extends ScreenHandler {
     private final PropertyDelegate propertyDelegate;
 
     public CrystalManaExtractorScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(MACHINE_SLOT_COUNT), new ArrayPropertyDelegate(1));
+        this(syncId, playerInventory, new SimpleInventory(MACHINE_SLOT_COUNT), new ArrayPropertyDelegate(2));
     }
 
     public CrystalManaExtractorScreenHandler(int syncId, PlayerInventory playerInventory,
                                              Inventory inventory, PropertyDelegate propertyDelegate) {
         super(ModScreenHandlers.CRYSTAL_MANA_EXTRACTOR, syncId);
         checkSize(inventory, MACHINE_SLOT_COUNT);
-        checkDataCount(propertyDelegate, 1);
+        checkDataCount(propertyDelegate, 2);
         this.inventory = inventory;
         this.propertyDelegate = propertyDelegate;
         inventory.onOpen(playerInventory.player);
@@ -117,5 +117,9 @@ public class CrystalManaExtractorScreenHandler extends ScreenHandler {
 
     public int getScaledMana(int width) {
         return Math.min(width, getMana() * width / getMaxMana());
+    }
+
+    public boolean isConverting() {
+        return propertyDelegate.get(1) > 0;
     }
 }

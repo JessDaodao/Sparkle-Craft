@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.example.sparkle_craft.client.component.ManaBarParticleEffect;
 import org.example.sparkle_craft.screen.CrystalManaExtractorScreenHandler;
 import org.example.sparkle_craft.sparkle_craft;
 
@@ -17,6 +18,9 @@ public class CrystalManaExtractorScreen extends HandledScreen<CrystalManaExtract
     private static final int MANA_WIDTH = 72;
     private static final int MANA_HEIGHT = 10;
     private static final int MANA_TEXTURE_X = 176;
+
+    private final ManaBarParticleEffect manaBarParticleEffect =
+            new ManaBarParticleEffect(7, 0x80FFFFFF);
 
     public CrystalManaExtractorScreen(CrystalManaExtractorScreenHandler handler,
                                       PlayerInventory inventory, Text title) {
@@ -44,9 +48,11 @@ public class CrystalManaExtractorScreen extends HandledScreen<CrystalManaExtract
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
 
         int manaWidth = handler.getScaledMana(MANA_WIDTH);
+        manaBarParticleEffect.setActive(handler.isConverting());
         if (manaWidth > 0) {
             context.drawTexture(TEXTURE, x + MANA_X, y + MANA_Y,
                     MANA_TEXTURE_X, 0, manaWidth, MANA_HEIGHT);
+            manaBarParticleEffect.render(context, x + MANA_X, y + MANA_Y, manaWidth, MANA_HEIGHT);
         }
     }
 }

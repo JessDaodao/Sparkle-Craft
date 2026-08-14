@@ -31,19 +31,25 @@ public class CrystalManaExtractorBlockEntity extends BlockEntity implements Name
     private final PropertyDelegate propertyDelegate = new PropertyDelegate() {
         @Override
         public int get(int index) {
-            return index == 0 ? mana : 0;
+            return switch (index) {
+                case 0 -> mana;
+                case 1 -> conversionTicksRemaining;
+                default -> 0;
+            };
         }
 
         @Override
         public void set(int index, int value) {
             if (index == 0) {
                 mana = value;
+            } else if (index == 1) {
+                conversionTicksRemaining = value;
             }
         }
 
         @Override
         public int size() {
-            return 1;
+            return 2;
         }
     };
 
