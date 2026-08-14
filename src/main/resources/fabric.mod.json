@@ -11,10 +11,10 @@
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [
-      "org.example.sparkle_craft.client.sparkle_craftDataGenerator"
+      "org.example.sparkle_craft.client.DataGenerator"
     ],
     "client": [
-      "org.example.sparkle_craft.client.sparkle_craftClient"
+      "org.example.sparkle_craft.client.Client"
     ],
     "main": [
       "org.example.sparkle_craft.sparkle_craft"

@@ -30,3 +30,4 @@ gradle
 .idea
 build
 run
+bin

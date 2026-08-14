@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "sparkle-craft:block/deepslate_magic_crystal_ore"
+  }
+}
