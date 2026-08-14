@@ -7,14 +7,23 @@ import java.util.Random;
 
 public class ManaBarParticleEffect {
 
+    public enum Mode {
+        IDLE,
+        INCREASING,
+        CONSUMING
+    }
+
     private static final float TRANSITION_SPEED = 5.0f;
+    private static final float IDLE_RISE_AMOUNT = 1.0f;
+    private static final float CONSUMING_RISE_AMOUNT = 5.0f;
 
     private final Random random = new Random();
     private final ManaDot[] dots;
     private final int color;
-    private boolean active;
+    private Mode mode = Mode.IDLE;
     private boolean initialized;
-    private float activeAmount;
+    private float horizontalAmount;
+    private float verticalAmount;
     private long lastAnimationTime;
 
     public ManaBarParticleEffect(int dotCount, int color) {
@@ -25,12 +34,8 @@ public class ManaBarParticleEffect {
         }
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public boolean isActive() {
-        return active;
+    public void setMode(Mode mode) {
+        this.mode = mode;
     }
 
     public void render(DrawContext context, int x, int y, int width, int height) {
@@ -41,18 +46,24 @@ public class ManaBarParticleEffect {
         long animationTime = Util.getMeasuringTimeMs();
         if (!initialized) {
             initializeDots(width, height);
-            activeAmount = active ? 1.0f : 0.0f;
+            horizontalAmount = mode == Mode.INCREASING ? 1.0f : 0.0f;
+            verticalAmount = targetVerticalAmount();
             lastAnimationTime = animationTime;
             initialized = true;
         }
 
         float elapsedSeconds = Math.min(Math.max(animationTime - lastAnimationTime, 0L) / 1000.0f, 0.1f);
         lastAnimationTime = animationTime;
-        float targetActiveAmount = active ? 1.0f : 0.0f;
+        float targetHorizontal = mode == Mode.INCREASING ? 1.0f : 0.0f;
+        float targetVertical = targetVerticalAmount();
         float easing = 1.0f - (float) Math.exp(-TRANSITION_SPEED * elapsedSeconds);
-        activeAmount += (targetActiveAmount - activeAmount) * easing;
-        if (Math.abs(targetActiveAmount - activeAmount) < 0.001f) {
-            activeAmount = targetActiveAmount;
+        horizontalAmount += (targetHorizontal - horizontalAmount) * easing;
+        verticalAmount += (targetVertical - verticalAmount) * easing;
+        if (Math.abs(targetHorizontal - horizontalAmount) < 0.001f) {
+            horizontalAmount = targetHorizontal;
+        }
+        if (Math.abs(targetVertical - verticalAmount) < 0.001f) {
+            verticalAmount = targetVertical;
         }
 
         for (ManaDot dot : dots) {
@@ -61,6 +72,14 @@ public class ManaBarParticleEffect {
             int dotY = Math.round(dot.y);
             drawClippedDot(context, x, y, width, height, dotX, dotY, dot.size);
         }
+    }
+
+    private float targetVerticalAmount() {
+        return switch (mode) {
+            case CONSUMING -> CONSUMING_RISE_AMOUNT;
+            case IDLE -> IDLE_RISE_AMOUNT;
+            default -> 0.0f;
+        };
     }
 
     private void initializeDots(int width, int height) {
@@ -73,8 +92,8 @@ public class ManaBarParticleEffect {
 
     private void updateDot(ManaDot dot, int width, int height, float elapsedSeconds) {
         dot.swayPhase += dot.swaySpeed * elapsedSeconds;
-        dot.x += dot.horizontalSpeed * activeAmount * elapsedSeconds;
-        dot.y -= dot.risingSpeed * (1.0f - activeAmount) * elapsedSeconds;
+        dot.x += dot.horizontalSpeed * horizontalAmount * elapsedSeconds;
+        dot.y -= dot.risingSpeed * verticalAmount * elapsedSeconds;
 
         if (dot.x >= width + dot.size || dot.y + dot.size < 0) {
             respawnDot(dot, width, height);
@@ -83,12 +102,15 @@ public class ManaBarParticleEffect {
 
     private void respawnDot(ManaDot dot, int width, int height) {
         randomizeDot(dot);
-        if (activeAmount >= 0.5f) {
+        if (verticalAmount > 0.0f) {
+            dot.x = random.nextFloat() * width;
+            dot.y = height - dot.size;
+        } else if (horizontalAmount >= 0.5f) {
             dot.x = 0;
             dot.y = random.nextFloat() * height;
         } else {
             dot.x = random.nextFloat() * width;
-            dot.y = height - dot.size;
+            dot.y = random.nextFloat() * height;
         }
     }
 

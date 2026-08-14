@@ -48,7 +48,9 @@ public class CrystalManaExtractorScreen extends HandledScreen<CrystalManaExtract
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
 
         int manaWidth = handler.getScaledMana(MANA_WIDTH);
-        manaBarParticleEffect.setActive(handler.isConverting());
+        manaBarParticleEffect.setMode(handler.isConverting()
+                ? ManaBarParticleEffect.Mode.INCREASING
+                : ManaBarParticleEffect.Mode.IDLE);
         if (manaWidth > 0) {
             context.drawTexture(TEXTURE, x + MANA_X, y + MANA_Y,
                     MANA_TEXTURE_X, 0, manaWidth, MANA_HEIGHT);

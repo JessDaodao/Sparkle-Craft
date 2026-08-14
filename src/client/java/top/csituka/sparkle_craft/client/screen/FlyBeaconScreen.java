@@ -91,7 +91,9 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
 
         int manaWidth = handler.getScaledMana(MANA_WIDTH);
-        manaBarParticleEffect.setActive(handler.isActive());
+        manaBarParticleEffect.setMode(handler.isActive()
+                ? ManaBarParticleEffect.Mode.CONSUMING
+                : ManaBarParticleEffect.Mode.IDLE);
         if (manaWidth > 0) {
             context.drawTexture(TEXTURE, x + MANA_X, y + MANA_Y,
                     MANA_TEXTURE_X, 0, manaWidth, MANA_HEIGHT);
