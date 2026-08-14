@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "sparkle-craft",
+  "version": "${version}",
+  "name": "Sparkle Craft",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/sparkle-craft/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "org.example.sparkle_craft.client.sparkle_craftDataGenerator"
+    ],
+    "client": [
+      "org.example.sparkle_craft.client.sparkle_craftClient"
+    ],
+    "main": [
+      "org.example.sparkle_craft.sparkle_craft"
+    ]
+  },
+  "mixins": [
+    "sparkle-craft.mixins.json",
+    {
+      "config": "sparkle-craft.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
