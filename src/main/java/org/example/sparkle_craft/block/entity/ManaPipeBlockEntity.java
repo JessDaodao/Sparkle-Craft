@@ -18,6 +18,10 @@ public class ManaPipeBlockEntity extends BlockEntity {
 
     private int mana;
 
+    public int getMana() {
+        return mana;
+    }
+
     public ManaPipeBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MANA_PIPE, pos, state);
     }

@@ -5,5 +5,7 @@
   "block.sparkle-craft.deepslate_magic_crystal_ore": "Deepslate Magic Crystal Ore",
   "block.sparkle-craft.crystal_mana_extractor": "Crystal Mana Extractor",
   "block.sparkle-craft.mana_pipe": "Mana Pipe",
-  "gui.sparkle-craft.crystal_mana_extractor.mana": "Mana: %s / %s"
+  "gui.sparkle-craft.crystal_mana_extractor.mana": "Mana: %s / %s",
+  "jade.sparkle-craft.mana_pipe.mana": "Mana: %s / %s",
+  "config.jade.plugin_sparkle-craft.mana_pipe_mana": "Mana in pipe"
 }

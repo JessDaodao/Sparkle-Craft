@@ -5,5 +5,7 @@
   "block.sparkle-craft.deepslate_magic_crystal_ore": "深层魔晶矿",
   "block.sparkle-craft.crystal_mana_extractor": "魔化器",
   "block.sparkle-craft.mana_pipe": "魔力导管",
-  "gui.sparkle-craft.crystal_mana_extractor.mana": "魔力：%s / %s"
+  "gui.sparkle-craft.crystal_mana_extractor.mana": "魔力：%s / %s",
+  "jade.sparkle-craft.mana_pipe.mana": "魔力：%s / %s",
+  "config.jade.plugin_sparkle-craft.mana_pipe_mana": "导管内魔力"
 }

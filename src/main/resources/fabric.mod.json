@@ -18,6 +18,9 @@
     ],
     "main": [
       "org.example.sparkle_craft.sparkle_craft"
+    ],
+    "jade": [
+      "org.example.sparkle_craft.integration.jade.SparkleCraftJadePlugin"
     ]
   },
   "mixins": [
@@ -31,5 +34,8 @@
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
     "minecraft": "${minecraft_version}"
+  },
+  "suggests": {
+    "jade": "*"
   }
 }
