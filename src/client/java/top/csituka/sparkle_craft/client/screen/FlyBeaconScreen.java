@@ -30,14 +30,14 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
     private static final int PREVIEW_HEIGHT = 52;
     private static final int PREVIEW_RADIUS = 10;
     private static final float PREVIEW_SCALE = 2.0F;
-    private static final double PREVIEW_Y_OFFSET = -20.0;
+    private static final double PREVIEW_Y_OFFSET = -23.0;
     private static final int MANA_X = 95;
     private static final int MANA_Y = 28;
     private static final int MANA_WIDTH = 72;
     private static final int MANA_HEIGHT = 10;
     private static final int MANA_TEXTURE_X = 176;
-    private static final int TOGGLE_X = 101;
-    private static final int TOGGLE_Y = 49;
+    private static final int TOGGLE_X = 100;
+    private static final int TOGGLE_Y = 47;
     private static final int TOGGLE_WIDTH = 66;
     private static final int TOGGLE_HEIGHT = 20;
 
