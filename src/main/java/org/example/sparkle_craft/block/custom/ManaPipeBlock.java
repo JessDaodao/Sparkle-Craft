@@ -122,6 +122,9 @@ public class ManaPipeBlock extends BlockWithEntity {
         if (neighborState.isOf(ModBlocks.MANA_PIPE)) {
             return true;
         }
+        if (neighborState.isOf(ModBlocks.FLY_BEACON)) {
+            return true;
+        }
         return neighborState.isOf(ModBlocks.CRYSTAL_MANA_EXTRACTOR)
                 && CrystalManaExtractorBlock.hasManaOutputOn(neighborState,
                 directionFromPipe.getOpposite());

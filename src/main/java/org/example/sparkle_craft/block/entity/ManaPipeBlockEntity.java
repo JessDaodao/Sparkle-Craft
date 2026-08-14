@@ -71,6 +71,20 @@ public class ManaPipeBlockEntity extends BlockEntity {
             }
         }
 
+        int pushBudget = Math.min(TRANSFER_RATE, blockEntity.mana);
+        for (Direction direction : Direction.values()) {
+            if (pushBudget == 0
+                    || !currentState.get(ManaPipeBlock.getConnectionProperty(direction))) {
+                continue;
+            }
+            BlockEntity neighbor = world.getBlockEntity(pos.offset(direction));
+            if (neighbor instanceof FlyBeaconBlockEntity beacon) {
+                int inserted = beacon.receiveMana(pushBudget);
+                blockEntity.mana -= inserted;
+                pushBudget -= inserted;
+            }
+        }
+
         if (blockEntity.mana != manaBeforeTick) {
             blockEntity.markDirty();
         }

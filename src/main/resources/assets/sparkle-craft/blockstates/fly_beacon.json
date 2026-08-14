@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "sparkle-craft:block/fly_beacon"
+    }
+  }
+}

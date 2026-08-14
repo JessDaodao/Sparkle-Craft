@@ -1,5 +1,6 @@
 package org.example.sparkle_craft.screen;
 
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
@@ -13,6 +14,11 @@ public class ModScreenHandlers {
             Registry.register(Registries.SCREEN_HANDLER,
                     new Identifier(sparkle_craft.MOD_ID, "crystal_mana_extractor"),
                     new ScreenHandlerType<>(CrystalManaExtractorScreenHandler::new, FeatureFlags.VANILLA_FEATURES));
+
+    public static final ScreenHandlerType<FlyBeaconScreenHandler> FLY_BEACON =
+            Registry.register(Registries.SCREEN_HANDLER,
+                    new Identifier(sparkle_craft.MOD_ID, "fly_beacon"),
+                    new ExtendedScreenHandlerType<>(FlyBeaconScreenHandler::new));
 
     public static void registerScreenHandlers() {
         sparkle_craft.LOGGER.info("Registering Screen Handlers for " + sparkle_craft.MOD_ID);

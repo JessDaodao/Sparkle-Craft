@@ -2,6 +2,7 @@ package org.example.sparkle_craft;
 
 import net.fabricmc.api.ModInitializer;
 import org.example.sparkle_craft.block.ModBlocks;
+import org.example.sparkle_craft.block.entity.FlyBeaconFlightManager;
 import org.example.sparkle_craft.block.entity.ModBlockEntities;
 import org.example.sparkle_craft.item.ModItemGroups;
 import org.example.sparkle_craft.item.ModItems;
@@ -23,5 +24,6 @@ public class sparkle_craft implements ModInitializer {
         ModScreenHandlers.registerScreenHandlers();
         ModItemGroups.registerItemGroups();
         ModWorldGeneration.generateOres();
+        FlyBeaconFlightManager.register();
     }
 }

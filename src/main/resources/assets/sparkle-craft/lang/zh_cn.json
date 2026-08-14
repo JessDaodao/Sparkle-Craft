@@ -5,7 +5,12 @@
   "block.sparkle-craft.deepslate_magic_crystal_ore": "深层魔晶矿",
   "block.sparkle-craft.crystal_mana_extractor": "魔化器",
   "block.sparkle-craft.mana_pipe": "魔力导管",
+  "block.sparkle-craft.fly_beacon": "飞行信标",
   "gui.sparkle-craft.crystal_mana_extractor.mana": "魔力：%s / %s",
+  "gui.sparkle-craft.fly_beacon.mana": "魔力：%s / %s",
+  "gui.sparkle-craft.fly_beacon.mana_label": "魔力",
+  "gui.sparkle-craft.fly_beacon.enabled": "已启用",
+  "gui.sparkle-craft.fly_beacon.disabled": "已停用",
   "jade.sparkle-craft.mana_pipe.mana": "魔力：%s / %s",
   "config.jade.plugin_sparkle-craft.mana_pipe_mana": "导管内魔力"
 }

@@ -22,6 +22,12 @@ public class ModBlockEntities {
                     FabricBlockEntityTypeBuilder.create(ManaPipeBlockEntity::new,
                             ModBlocks.MANA_PIPE).build());
 
+    public static final BlockEntityType<FlyBeaconBlockEntity> FLY_BEACON =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE,
+                    new Identifier(sparkle_craft.MOD_ID, "fly_beacon"),
+                    FabricBlockEntityTypeBuilder.create(FlyBeaconBlockEntity::new,
+                            ModBlocks.FLY_BEACON).build());
+
     public static void registerModBlockEntities() {
         sparkle_craft.LOGGER.info("Registering Mod Block Entities for " + sparkle_craft.MOD_ID);
     }

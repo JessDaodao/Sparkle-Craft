@@ -11,6 +11,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.example.sparkle_craft.sparkle_craft;
 import org.example.sparkle_craft.block.custom.CrystalManaExtractorBlock;
+import org.example.sparkle_craft.block.custom.FlyBeaconBlock;
 import org.example.sparkle_craft.block.custom.ManaPipeBlock;
 
 public class ModBlocks {
@@ -30,6 +31,11 @@ public class ModBlocks {
             new ManaPipeBlock(FabricBlockSettings.copyOf(Blocks.GLASS)
                     .strength(0.5f)
                     .nonOpaque()));
+
+    public static final Block FLY_BEACON = registerBlock("fly_beacon",
+            new FlyBeaconBlock(FabricBlockSettings.copyOf(Blocks.BEACON)
+                    .strength(3.0f)
+                    .requiresTool()));
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);
