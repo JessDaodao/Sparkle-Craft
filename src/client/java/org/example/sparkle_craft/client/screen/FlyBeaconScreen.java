@@ -28,6 +28,9 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
     private static final int PREVIEW_Y = 17;
     private static final int PREVIEW_WIDTH = 81;
     private static final int PREVIEW_HEIGHT = 52;
+    private static final int PREVIEW_RADIUS = 10;
+    private static final float PREVIEW_SCALE = 2.0F;
+    private static final double PREVIEW_Y_OFFSET = -20.0;
     private static final int MANA_X = 95;
     private static final int MANA_Y = 28;
     private static final int MANA_WIDTH = 72;
@@ -115,15 +118,15 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
         MatrixStack matrices = context.getMatrices();
         matrices.push();
         matrices.translate(x + PREVIEW_X + PREVIEW_WIDTH / 2.0,
-                y + PREVIEW_Y + PREVIEW_HEIGHT - 10.0, 150.0);
-        matrices.scale(7.0F, -7.0F, 7.0F);
+                y + PREVIEW_Y + PREVIEW_HEIGHT + PREVIEW_Y_OFFSET, 150.0);
+        matrices.scale(PREVIEW_SCALE, -PREVIEW_SCALE, PREVIEW_SCALE);
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(30.0F));
         float rotation = (minecraft.world.getTime() + delta) * 0.5F;
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
 
         BlockPos beaconPos = handler.getBlockPos();
-        for (int offsetZ = -2; offsetZ <= 2; offsetZ++) {
-            for (int offsetX = -2; offsetX <= 2; offsetX++) {
+        for (int offsetZ = -PREVIEW_RADIUS; offsetZ <= PREVIEW_RADIUS; offsetZ++) {
+            for (int offsetX = -PREVIEW_RADIUS; offsetX <= PREVIEW_RADIUS; offsetX++) {
                 renderPreviewColumn(context, minecraft, matrices, beaconPos,
                         offsetX, offsetZ);
             }
@@ -139,13 +142,7 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
     private void renderPreviewColumn(DrawContext context, MinecraftClient minecraft,
                                      MatrixStack matrices, BlockPos beaconPos,
                                      int offsetX, int offsetZ) {
-        if (offsetX == 0 && offsetZ == 0) {
-            renderPreviewBlock(context, minecraft, matrices,
-                    minecraft.world.getBlockState(beaconPos), offsetX, 0, offsetZ);
-            return;
-        }
-
-        for (int offsetY = 1; offsetY >= -2; offsetY--) {
+        for (int offsetY = 10; offsetY >= -5; offsetY--) {
             BlockState state = minecraft.world.getBlockState(
                     beaconPos.add(offsetX, offsetY, offsetZ));
             if (state.isAir() || state.getRenderType() == BlockRenderType.INVISIBLE) {
@@ -154,7 +151,6 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
 
             renderPreviewBlock(context, minecraft, matrices, state,
                     offsetX, offsetY, offsetZ);
-            return;
         }
     }
 
