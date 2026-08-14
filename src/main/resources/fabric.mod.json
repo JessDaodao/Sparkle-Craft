@@ -4,8 +4,13 @@
   "version": "${version}",
   "name": "Sparkle Craft",
   "description": "",
-  "authors": [],
-  "contact": {},
+  "authors": [
+    "JessDaodao"
+  ],
+  "contact": {
+    "issues": "https://github.com/JessDaodao/Sparkle-Craft/issues",
+    "sources": "https://github.com/JessDaodao/Sparkle-Craft"
+  },
   "license": "MIT",
   "icon": "assets/sparkle-craft/icon.png",
   "environment": "*",
