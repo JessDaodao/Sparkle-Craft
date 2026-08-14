@@ -13,7 +13,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.example.sparkle_craft.screen.FlyBeaconScreenHandler;
 
@@ -23,7 +22,9 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
 
     public static final int MAX_MANA = 1000;
     public static final int MANA_PER_TICK = 1;
-    public static final int RANGE = 16;
+    public static final int FLIGHT_RADIUS = 10;
+    public static final int FLIGHT_BELOW = 5;
+    public static final int FLIGHT_ABOVE = 50;
 
     private int mana;
     private boolean enabled;
@@ -64,11 +65,21 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
             return;
         }
 
-        Vec3d center = Vec3d.ofCenter(pos);
-        List<ServerPlayerEntity> players = serverWorld.getPlayers(
-                player -> !player.isSpectator()
-                        && !player.isCreative()
-                        && player.squaredDistanceTo(center) <= RANGE * RANGE);
+        double centerX = pos.getX() + 0.5;
+        double centerZ = pos.getZ() + 0.5;
+        double minY = pos.getY() - FLIGHT_BELOW;
+        double maxY = pos.getY() + FLIGHT_ABOVE;
+        List<ServerPlayerEntity> players = serverWorld.getPlayers(player -> {
+            if (player.isSpectator() || player.isCreative()) {
+                return false;
+            }
+            if (player.getY() < minY || player.getY() > maxY) {
+                return false;
+            }
+            double dx = player.getX() - centerX;
+            double dz = player.getZ() - centerZ;
+            return dx * dx + dz * dz <= FLIGHT_RADIUS * FLIGHT_RADIUS;
+        });
         if (players.isEmpty()) {
             return;
         }
