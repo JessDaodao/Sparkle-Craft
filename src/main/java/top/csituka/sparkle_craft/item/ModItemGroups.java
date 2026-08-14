@@ -1,0 +1,32 @@
+package top.csituka.sparkle_craft.item;
+
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import top.csituka.sparkle_craft.block.ModBlocks;
+import top.csituka.sparkle_craft.sparkle_craft;
+
+public class ModItemGroups {
+
+    public static final ItemGroup SPARKLE_CRAFT_GROUP = FabricItemGroup.builder()
+            .displayName(Text.translatable("itemGroup.sparkle-craft"))
+            .icon(() -> new ItemStack(ModBlocks.MAGIC_CRYSTAL_ORE))
+            .entries((displayContext, entries) -> {
+                entries.add(ModItems.MAGIC_CRYSTAL);
+                entries.add(ModBlocks.MAGIC_CRYSTAL_ORE);
+                entries.add(ModBlocks.DEEPSLATE_MAGIC_CRYSTAL_ORE);
+                entries.add(ModBlocks.CRYSTAL_MANA_EXTRACTOR);
+                entries.add(ModBlocks.MANA_PIPE);
+                entries.add(ModBlocks.FLY_BEACON);
+            })
+            .build();
+
+    public static void registerItemGroups() {
+        Registry.register(Registries.ITEM_GROUP,
+                new Identifier(sparkle_craft.MOD_ID, "sparkle_craft"), SPARKLE_CRAFT_GROUP);
+    }
+}

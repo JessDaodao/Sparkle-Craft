@@ -11,16 +11,16 @@
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [
-      "org.example.sparkle_craft.client.DataGenerator"
+      "top.csituka.sparkle_craft.client.DataGenerator"
     ],
     "client": [
-      "org.example.sparkle_craft.client.Client"
+      "top.csituka.sparkle_craft.client.Client"
     ],
     "main": [
-      "org.example.sparkle_craft.sparkle_craft"
+      "top.csituka.sparkle_craft.sparkle_craft"
     ],
     "jade": [
-      "org.example.sparkle_craft.integration.jade.SparkleCraftJadePlugin"
+      "top.csituka.sparkle_craft.integration.jade.SparkleCraftJadePlugin"
     ]
   },
   "mixins": [
