@@ -10,6 +10,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.example.sparkle_craft.sparkle_craft;
+import org.example.sparkle_craft.block.custom.CrystalManaExtractorBlock;
 
 public class ModBlocks {
 
@@ -18,6 +19,11 @@ public class ModBlocks {
 
     public static final Block DEEPSLATE_MAGIC_CRYSTAL_ORE = registerBlock("deepslate_magic_crystal_ore",
             new Block(FabricBlockSettings.copyOf(Blocks.DEEPSLATE_DIAMOND_ORE)));
+
+    public static final Block CRYSTAL_MANA_EXTRACTOR = registerBlock("crystal_mana_extractor",
+            new CrystalManaExtractorBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK)
+                    .strength(3.5f)
+                    .requiresTool()));
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);

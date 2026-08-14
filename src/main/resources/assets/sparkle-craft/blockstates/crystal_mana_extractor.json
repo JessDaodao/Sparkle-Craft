@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "sparkle-craft:block/crystal_mana_extractor"
+    }
+  }
+}
