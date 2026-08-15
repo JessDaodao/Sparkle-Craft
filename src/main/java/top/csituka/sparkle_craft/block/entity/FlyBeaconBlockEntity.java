@@ -92,7 +92,7 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
             }
             double dx = player.getX() - centerX;
             double dz = player.getZ() - centerZ;
-            return dx * dx + dz * dz <= FLIGHT_RADIUS * FLIGHT_RADIUS;
+            return Math.abs(dx) <= FLIGHT_RADIUS && Math.abs(dz) <= FLIGHT_RADIUS;
         });
         if (players.isEmpty()) {
             return;

@@ -10,6 +10,10 @@ import java.util.Map;
 
 public final class FlyBeaconBarrierTracker {
 
+    public static final int AXIS_X = 0;
+    public static final int AXIS_Y = 1;
+    public static final int AXIS_Z = 2;
+
     private static final long STALE_TICKS = 2L;
 
     private static final Map<BlockPos, Barrier> BARRIERS = new HashMap<>();
@@ -50,42 +54,35 @@ public final class FlyBeaconBarrierTracker {
 
     public static final class Barrier {
 
-        private final double centerX;
-        private final double centerZ;
-        private final double minY;
-        private final double maxY;
-        private final double radius;
+        private final double[] min;
+        private final double[] max;
         private final long key;
         private final long lastTick;
 
         private Barrier(BlockPos pos, long lastTick) {
-            this.centerX = pos.getX() + 0.5;
-            this.centerZ = pos.getZ() + 0.5;
-            this.minY = pos.getY() - FlyBeaconBlockEntity.FLIGHT_BELOW;
-            this.maxY = pos.getY() + FlyBeaconBlockEntity.FLIGHT_ABOVE;
-            this.radius = FlyBeaconBlockEntity.FLIGHT_RADIUS;
+            double centerX = pos.getX() + 0.5;
+            double centerZ = pos.getZ() + 0.5;
+            int radius = FlyBeaconBlockEntity.FLIGHT_RADIUS;
+            this.min = new double[]{
+                    centerX - radius,
+                    pos.getY() - FlyBeaconBlockEntity.FLIGHT_BELOW,
+                    centerZ - radius
+            };
+            this.max = new double[]{
+                    centerX + radius,
+                    pos.getY() + FlyBeaconBlockEntity.FLIGHT_ABOVE,
+                    centerZ + radius
+            };
             this.key = pos.asLong();
             this.lastTick = lastTick;
         }
 
-        public double getCenterX() {
-            return centerX;
+        public double getMin(int axis) {
+            return min[axis];
         }
 
-        public double getCenterZ() {
-            return centerZ;
-        }
-
-        public double getMinY() {
-            return minY;
-        }
-
-        public double getMaxY() {
-            return maxY;
-        }
-
-        public double getRadius() {
-            return radius;
+        public double getMax(int axis) {
+            return max[axis];
         }
 
         public long getKey() {

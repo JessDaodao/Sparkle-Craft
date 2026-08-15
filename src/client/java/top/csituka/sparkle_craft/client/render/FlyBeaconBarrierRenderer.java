@@ -14,22 +14,25 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import top.csituka.sparkle_craft.block.entity.FlyBeaconBarrierTracker;
 import top.csituka.sparkle_craft.block.entity.FlyBeaconBarrierTracker.Barrier;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
 
 public final class FlyBeaconBarrierRenderer {
 
     private static final Identifier FORCEFIELD = new Identifier("textures/misc/forcefield.png");
-    private static final Comparator<double[]> BY_START = Comparator.comparingDouble(hole -> hole[0]);
 
-    private static final int SEGMENTS = 128;
+    private static final int AXIS_X = FlyBeaconBarrierTracker.AXIS_X;
+    private static final int AXIS_Y = FlyBeaconBarrierTracker.AXIS_Y;
+    private static final int AXIS_Z = FlyBeaconBarrierTracker.AXIS_Z;
+    private static final int[] TANGENT_U = {AXIS_Z, AXIS_X, AXIS_X};
+    private static final int[] TANGENT_V = {AXIS_Y, AXIS_Z, AXIS_Y};
+
     private static final long SCROLL_PERIOD_MS = 3000L;
     private static final float TEXTURE_SCALE = 0.5f;
     private static final float RED = 0.65f;
@@ -40,7 +43,7 @@ public final class FlyBeaconBarrierRenderer {
     private static final double EPSILON = 1.0E-4;
 
     private final List<double[]> holes = new ArrayList<>();
-    private final List<double[]> spans = new ArrayList<>();
+    private final double[] point = new double[3];
     private boolean building;
 
     private FlyBeaconBarrierRenderer() {
@@ -72,167 +75,121 @@ public final class FlyBeaconBarrierRenderer {
             if (isTooFar(barrier, camera)) {
                 continue;
             }
-            buildWall(buffer, matrix, barrier, barriers, camera, scroll);
-            buildCap(buffer, matrix, barrier, barriers, camera, scroll, barrier.getMaxY(), true);
-            buildCap(buffer, matrix, barrier, barriers, camera, scroll, barrier.getMinY(), false);
+            for (int axis = AXIS_X; axis <= AXIS_Z; axis++) {
+                buildFace(buffer, matrix, barrier, barriers, camera, scroll, axis, false);
+                buildFace(buffer, matrix, barrier, barriers, camera, scroll, axis, true);
+            }
         }
         if (building) {
             draw(buffer);
         }
     }
 
-    private void buildWall(BufferBuilder buffer, Matrix4f matrix, Barrier barrier,
-                           List<Barrier> all, Vec3d camera, float scroll) {
-        double radius = barrier.getRadius();
-        double step = 2.0 * Math.PI / SEGMENTS;
-        double textureStep = Math.round(2.0 * Math.PI * radius * TEXTURE_SCALE) / (double) SEGMENTS;
+    private void buildFace(BufferBuilder buffer, Matrix4f matrix, Barrier barrier, List<Barrier> all,
+                           Vec3d camera, float scroll, int axis, boolean positive) {
+        int axisU = TANGENT_U[axis];
+        int axisV = TANGENT_V[axis];
+        double plane = positive ? barrier.getMax(axis) : barrier.getMin(axis);
+        double minU = barrier.getMin(axisU);
+        double maxU = barrier.getMax(axisU);
+        double minV = barrier.getMin(axisV);
+        double maxV = barrier.getMax(axisV);
 
-        for (int segment = 0; segment < SEGMENTS; segment++) {
-            double angle = segment * step;
-            double nextAngle = angle + step;
-            double sampleX = barrier.getCenterX() + Math.cos(angle + step * 0.5) * radius;
-            double sampleZ = barrier.getCenterZ() + Math.sin(angle + step * 0.5) * radius;
-
-            holes.clear();
-            for (Barrier other : all) {
-                if (other == barrier || !containsHorizontally(other, sampleX, sampleZ)) {
-                    continue;
-                }
-                addHole(Math.max(barrier.getMinY(), other.getMinY()),
-                        Math.min(barrier.getMaxY(), other.getMaxY()));
-            }
-            subtract(barrier.getMinY(), barrier.getMaxY());
-            if (spans.isEmpty()) {
+        holes.clear();
+        for (Barrier other : all) {
+            if (other == barrier || !occludes(other, barrier, axis, plane, positive)) {
                 continue;
             }
+            double holeMinU = Math.max(minU, other.getMin(axisU));
+            double holeMaxU = Math.min(maxU, other.getMax(axisU));
+            double holeMinV = Math.max(minV, other.getMin(axisV));
+            double holeMaxV = Math.min(maxV, other.getMax(axisV));
+            if (holeMaxU - holeMinU > EPSILON && holeMaxV - holeMinV > EPSILON) {
+                holes.add(new double[]{holeMinU, holeMaxU, holeMinV, holeMaxV});
+            }
+        }
 
-            double x0 = barrier.getCenterX() + Math.cos(angle) * radius;
-            double z0 = barrier.getCenterZ() + Math.sin(angle) * radius;
-            double x1 = barrier.getCenterX() + Math.cos(nextAngle) * radius;
-            double z1 = barrier.getCenterZ() + Math.sin(nextAngle) * radius;
-            float u0 = scroll - (float) (segment * textureStep);
-            float u1 = scroll - (float) ((segment + 1) * textureStep);
+        double[] gridU = new double[2 + holes.size() * 2];
+        double[] gridV = new double[2 + holes.size() * 2];
+        int countU = collectEdges(gridU, minU, maxU, 0);
+        int countV = collectEdges(gridV, minV, maxV, 2);
 
-            for (double[] span : spans) {
-                float v0 = scroll - (float) span[0] * TEXTURE_SCALE;
-                float v1 = scroll - (float) span[1] * TEXTURE_SCALE;
-                vertex(buffer, matrix, camera, x0, span[0], z0, u0, v0);
-                vertex(buffer, matrix, camera, x1, span[0], z1, u1, v0);
-                vertex(buffer, matrix, camera, x1, span[1], z1, u1, v1);
-                vertex(buffer, matrix, camera, x0, span[1], z0, u0, v1);
+        for (int i = 0; i + 1 < countU; i++) {
+            for (int j = 0; j + 1 < countV; j++) {
+                if (isCovered((gridU[i] + gridU[i + 1]) * 0.5, (gridV[j] + gridV[j + 1]) * 0.5)) {
+                    continue;
+                }
+                faceVertex(buffer, matrix, camera, axis, plane, gridU[i], gridV[j], scroll);
+                faceVertex(buffer, matrix, camera, axis, plane, gridU[i + 1], gridV[j], scroll);
+                faceVertex(buffer, matrix, camera, axis, plane, gridU[i + 1], gridV[j + 1], scroll);
+                faceVertex(buffer, matrix, camera, axis, plane, gridU[i], gridV[j + 1], scroll);
             }
         }
     }
 
-    private void buildCap(BufferBuilder buffer, Matrix4f matrix, Barrier barrier, List<Barrier> all,
-                          Vec3d camera, float scroll, double y, boolean top) {
-        double radius = barrier.getRadius();
-        double step = 2.0 * Math.PI / SEGMENTS;
-
-        for (int segment = 0; segment < SEGMENTS; segment++) {
-            double angle = segment * step;
-            double nextAngle = angle + step;
-            double directionX = Math.cos(angle + step * 0.5);
-            double directionZ = Math.sin(angle + step * 0.5);
-
-            holes.clear();
-            for (Barrier other : all) {
-                if (other == barrier || !coversLevel(other, barrier, y, top)) {
-                    continue;
-                }
-                double offsetX = barrier.getCenterX() - other.getCenterX();
-                double offsetZ = barrier.getCenterZ() - other.getCenterZ();
-                double projection = offsetX * directionX + offsetZ * directionZ;
-                double limit = other.getRadius() - EPSILON;
-                double discriminant = projection * projection
-                        - (offsetX * offsetX + offsetZ * offsetZ - limit * limit);
-                if (discriminant <= 0.0) {
-                    continue;
-                }
-                double root = Math.sqrt(discriminant);
-                addHole(Math.max(0.0, -projection - root), Math.min(radius, -projection + root));
-            }
-            subtract(0.0, radius);
-            if (spans.isEmpty()) {
-                continue;
-            }
-
-            double cos0 = Math.cos(angle);
-            double sin0 = Math.sin(angle);
-            double cos1 = Math.cos(nextAngle);
-            double sin1 = Math.sin(nextAngle);
-
-            for (double[] span : spans) {
-                double innerX0 = barrier.getCenterX() + cos0 * span[0];
-                double innerZ0 = barrier.getCenterZ() + sin0 * span[0];
-                double innerX1 = barrier.getCenterX() + cos1 * span[0];
-                double innerZ1 = barrier.getCenterZ() + sin1 * span[0];
-                double outerX0 = barrier.getCenterX() + cos0 * span[1];
-                double outerZ0 = barrier.getCenterZ() + sin0 * span[1];
-                double outerX1 = barrier.getCenterX() + cos1 * span[1];
-                double outerZ1 = barrier.getCenterZ() + sin1 * span[1];
-                capVertex(buffer, matrix, camera, innerX0, y, innerZ0, scroll);
-                capVertex(buffer, matrix, camera, innerX1, y, innerZ1, scroll);
-                capVertex(buffer, matrix, camera, outerX1, y, outerZ1, scroll);
-                capVertex(buffer, matrix, camera, outerX0, y, outerZ0, scroll);
-            }
-        }
-    }
-
-    private static boolean coversLevel(Barrier other, Barrier barrier, double y, boolean top) {
-        if (y > other.getMinY() + EPSILON && y < other.getMaxY() - EPSILON) {
+    private static boolean occludes(Barrier other, Barrier barrier, int axis, double plane,
+                                    boolean positive) {
+        double otherMin = other.getMin(axis);
+        double otherMax = other.getMax(axis);
+        if (plane > otherMin + EPSILON && plane < otherMax - EPSILON) {
             return true;
         }
-        double plane = top ? other.getMaxY() : other.getMinY();
-        return Math.abs(y - plane) < EPSILON && other.getKey() < barrier.getKey();
+        if (Math.abs(plane - (positive ? otherMin : otherMax)) < EPSILON) {
+            return true;
+        }
+        return Math.abs(plane - (positive ? otherMax : otherMin)) < EPSILON
+                && other.getKey() < barrier.getKey();
     }
 
-    private static boolean containsHorizontally(Barrier barrier, double x, double z) {
-        double dx = x - barrier.getCenterX();
-        double dz = z - barrier.getCenterZ();
-        double limit = barrier.getRadius() - EPSILON;
-        return dx * dx + dz * dz < limit * limit;
+    private int collectEdges(double[] edges, double from, double to, int offset) {
+        int count = 0;
+        edges[count++] = from;
+        edges[count++] = to;
+        for (double[] hole : holes) {
+            for (int side = 0; side < 2; side++) {
+                double edge = hole[offset + side];
+                if (edge > from + EPSILON && edge < to - EPSILON) {
+                    edges[count++] = edge;
+                }
+            }
+        }
+
+        Arrays.sort(edges, 0, count);
+        int unique = 1;
+        for (int i = 1; i < count; i++) {
+            if (edges[i] - edges[unique - 1] > EPSILON) {
+                edges[unique++] = edges[i];
+            }
+        }
+        return unique;
+    }
+
+    private boolean isCovered(double u, double v) {
+        for (double[] hole : holes) {
+            if (u > hole[0] && u < hole[1] && v > hole[2] && v < hole[3]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isTooFar(Barrier barrier, Vec3d camera) {
-        double dx = barrier.getCenterX() - camera.x;
-        double dz = barrier.getCenterZ() - camera.z;
-        double dy = MathHelper.clamp(camera.y, barrier.getMinY(), barrier.getMaxY()) - camera.y;
-        double limit = MAX_RENDER_DISTANCE + barrier.getRadius();
-        return dx * dx + dz * dz > limit * limit || Math.abs(dy) > MAX_RENDER_DISTANCE;
+        return axisDistance(camera.x, barrier, AXIS_X) > MAX_RENDER_DISTANCE
+                || axisDistance(camera.y, barrier, AXIS_Y) > MAX_RENDER_DISTANCE
+                || axisDistance(camera.z, barrier, AXIS_Z) > MAX_RENDER_DISTANCE;
     }
 
-    private void addHole(double from, double to) {
-        if (to - from > EPSILON) {
-            holes.add(new double[]{from, to});
-        }
+    private static double axisDistance(double value, Barrier barrier, int axis) {
+        return Math.max(0.0, Math.max(barrier.getMin(axis) - value, value - barrier.getMax(axis)));
     }
 
-    private void subtract(double from, double to) {
-        spans.clear();
-        if (holes.isEmpty()) {
-            spans.add(new double[]{from, to});
-            return;
-        }
-
-        holes.sort(BY_START);
-        double cursor = from;
-        for (double[] hole : holes) {
-            if (hole[0] - cursor > EPSILON) {
-                spans.add(new double[]{cursor, hole[0]});
-            }
-            cursor = Math.max(cursor, hole[1]);
-            if (to - cursor <= EPSILON) {
-                return;
-            }
-        }
-        spans.add(new double[]{cursor, to});
-    }
-
-    private void capVertex(BufferBuilder buffer, Matrix4f matrix, Vec3d camera,
-                           double x, double y, double z, float scroll) {
-        vertex(buffer, matrix, camera, x, y, z,
-                scroll - (float) x * TEXTURE_SCALE, scroll - (float) z * TEXTURE_SCALE);
+    private void faceVertex(BufferBuilder buffer, Matrix4f matrix, Vec3d camera, int axis,
+                            double plane, double u, double v, float scroll) {
+        point[axis] = plane;
+        point[TANGENT_U[axis]] = u;
+        point[TANGENT_V[axis]] = v;
+        vertex(buffer, matrix, camera, point[AXIS_X], point[AXIS_Y], point[AXIS_Z],
+                scroll - (float) u * TEXTURE_SCALE, scroll - (float) v * TEXTURE_SCALE);
     }
 
     private void vertex(BufferBuilder buffer, Matrix4f matrix, Vec3d camera,
