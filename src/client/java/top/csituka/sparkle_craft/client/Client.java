@@ -7,6 +7,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import top.csituka.sparkle_craft.block.ModBlocks;
 import top.csituka.sparkle_craft.block.entity.ModBlockEntities;
+import top.csituka.sparkle_craft.client.render.FlyBeaconBarrierRenderer;
 import top.csituka.sparkle_craft.client.render.ManaPipeBlockEntityRenderer;
 import top.csituka.sparkle_craft.client.screen.CrystalManaExtractorScreen;
 import top.csituka.sparkle_craft.client.screen.FlyBeaconScreen;
@@ -21,5 +22,6 @@ public class Client implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.MANA_PIPE, RenderLayer.getTranslucent());
         BlockEntityRendererFactories.register(ModBlockEntities.MANA_PIPE,
                 ManaPipeBlockEntityRenderer::new);
+        FlyBeaconBarrierRenderer.register();
     }
 }

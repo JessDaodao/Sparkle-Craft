@@ -50,7 +50,7 @@ public class FlyBeaconBlock extends BlockWithEntity {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state,
                                                                   BlockEntityType<T> type) {
         return world.isClient
-                ? null
+                ? checkType(type, ModBlockEntities.FLY_BEACON, FlyBeaconBlockEntity::clientTick)
                 : checkType(type, ModBlockEntities.FLY_BEACON, FlyBeaconBlockEntity::tick);
     }
 }

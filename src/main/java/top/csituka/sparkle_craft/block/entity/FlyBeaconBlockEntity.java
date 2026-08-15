@@ -1,12 +1,16 @@
 package top.csituka.sparkle_craft.block.entity;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -30,6 +34,7 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
     private int mana;
     private boolean enabled;
     private int consumptionTick;
+    private boolean syncedActive;
     private final PropertyDelegate propertyDelegate = new PropertyDelegate() {
         @Override
         public int get(int index) {
@@ -61,9 +66,16 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
 
     public static void tick(World world, BlockPos pos, BlockState state,
                             FlyBeaconBlockEntity blockEntity) {
-        if (!(world instanceof ServerWorld serverWorld)
-                || !blockEntity.enabled
-                || blockEntity.mana <= 0) {
+        if (!(world instanceof ServerWorld serverWorld)) {
+            return;
+        }
+
+        boolean active = blockEntity.isActive();
+        if (active != blockEntity.syncedActive) {
+            blockEntity.syncedActive = active;
+            world.updateListeners(pos, state, state, Block.NOTIFY_ALL);
+        }
+        if (!active) {
             return;
         }
 
@@ -95,6 +107,15 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
         }
     }
 
+    public static void clientTick(World world, BlockPos pos, BlockState state,
+                                  FlyBeaconBlockEntity blockEntity) {
+        FlyBeaconBarrierTracker.update(world, pos, blockEntity.isActive());
+    }
+
+    public boolean isActive() {
+        return enabled && mana > 0;
+    }
+
     public int receiveMana(int amount) {
         int inserted = Math.min(Math.max(0, amount), MAX_MANA - mana);
         if (inserted > 0) {
@@ -123,6 +144,24 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(pos);
+    }
+
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        return createNbt();
+    }
+
+    @Override
+    public void markRemoved() {
+        super.markRemoved();
+        if (world != null && world.isClient) {
+            FlyBeaconBarrierTracker.remove(pos);
+        }
     }
 
     @Override
