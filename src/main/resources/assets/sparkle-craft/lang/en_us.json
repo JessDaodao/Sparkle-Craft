@@ -1,6 +1,12 @@
 {
   "itemGroup.sparkle-craft": "Sparkle Craft",
   "gui.sparkle-craft.mana_rate": "%s mana/s",
+  "gui.sparkle-craft.config.title": "Configuration",
+  "gui.sparkle-craft.config.done": "Done",
+  "gui.sparkle-craft.config.show_barrier": "Flight Beacon Boundary Display: ",
+  "gui.sparkle-craft.config.barrier_on": "On",
+  "gui.sparkle-craft.config.barrier_off": "Off",
+  "gui.sparkle-craft.config.show_barrier_hover": "Whether to show the purple boundary barrier around flight beacons",
   "item.sparkle-craft.magic_crystal": "Magic Crystal",
   "block.sparkle-craft.magic_crystal_ore": "Magic Crystal Ore",
   "block.sparkle-craft.deepslate_magic_crystal_ore": "Deepslate Magic Crystal Ore",

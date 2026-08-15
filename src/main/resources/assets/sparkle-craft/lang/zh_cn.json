@@ -1,6 +1,12 @@
 {
   "itemGroup.sparkle-craft": "闪闪工艺",
   "gui.sparkle-craft.mana_rate": "%s 魔力/秒",
+  "gui.sparkle-craft.config.title": "配置",
+  "gui.sparkle-craft.config.done": "完成",
+  "gui.sparkle-craft.config.show_barrier": "飞行信标边界显示：",
+  "gui.sparkle-craft.config.barrier_on": "开",
+  "gui.sparkle-craft.config.barrier_off": "关",
+  "gui.sparkle-craft.config.show_barrier_hover": "是否在飞行信标周围显示紫色边界屏障",
   "item.sparkle-craft.magic_crystal": "魔晶",
   "block.sparkle-craft.magic_crystal_ore": "魔晶矿",
   "block.sparkle-craft.deepslate_magic_crystal_ore": "深层魔晶矿",

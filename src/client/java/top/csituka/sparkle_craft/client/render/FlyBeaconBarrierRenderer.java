@@ -18,6 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import top.csituka.sparkle_craft.block.entity.FlyBeaconBarrierTracker;
 import top.csituka.sparkle_craft.block.entity.FlyBeaconBarrierTracker.Barrier;
+import top.csituka.sparkle_craft.config.ModConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +56,9 @@ public final class FlyBeaconBarrierRenderer {
     }
 
     private void render(WorldRenderContext context) {
+        if (!ModConfig.showFlyBeaconBarrier()) {
+            return;
+        }
         ClientWorld world = context.world();
         if (world == null) {
             return;

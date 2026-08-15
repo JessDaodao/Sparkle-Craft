@@ -35,6 +35,10 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/releases"
+    }
 }
 
 dependencies {
@@ -45,6 +49,7 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "maven.modrinth:nvQzSEkH:ahavHbAT"
+    modImplementation "com.terraformersmc:modmenu:7.2.2"
 }
 
 processResources {

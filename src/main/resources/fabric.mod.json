@@ -24,6 +24,9 @@
     "main": [
       "top.csituka.sparkle_craft.sparkle_craft"
     ],
+    "modmenu": [
+      "top.csituka.sparkle_craft.client.config.ModMenuIntegration"
+    ],
     "jade": [
       "top.csituka.sparkle_craft.integration.jade.SparkleCraftJadePlugin"
     ]
@@ -41,6 +44,7 @@
     "minecraft": "${minecraft_version}"
   },
   "suggests": {
-    "jade": "*"
+    "jade": "*",
+    "modmenu": "*"
   }
 }
