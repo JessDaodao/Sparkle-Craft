@@ -20,7 +20,7 @@ import org.joml.Matrix4f;
 public class ManaPipeBlockEntityRenderer implements BlockEntityRenderer<ManaPipeBlockEntity> {
 
     private static final Identifier MANA_TEXTURE = new Identifier(sparkle_craft.MOD_ID,
-            "textures/block/mana_pipe_mana.png");
+            "textures/block/mana.png");
     private static final float MIN = 5.0f / 16.0f;
     private static final float MAX = 11.0f / 16.0f;
 
