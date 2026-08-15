@@ -6,6 +6,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import top.csituka.sparkle_craft.client.component.ManaBarParticleEffect;
+import top.csituka.sparkle_craft.client.component.ManaFlowIndicator;
 import top.csituka.sparkle_craft.screen.CrystalManaExtractorScreenHandler;
 import top.csituka.sparkle_craft.sparkle_craft;
 
@@ -18,9 +19,12 @@ public class CrystalManaExtractorScreen extends HandledScreen<CrystalManaExtract
     private static final int MANA_WIDTH = 72;
     private static final int MANA_HEIGHT = 10;
     private static final int MANA_TEXTURE_X = 176;
+    private static final int FLOW_Y = 6;
+    private static final int FLOW_MARGIN = 8;
 
     private final ManaBarParticleEffect manaBarParticleEffect =
             new ManaBarParticleEffect(7, 0x80FFFFFF);
+    private final ManaFlowIndicator manaFlowIndicator = new ManaFlowIndicator();
 
     public CrystalManaExtractorScreen(CrystalManaExtractorScreenHandler handler,
                                       PlayerInventory inventory, Text title) {
@@ -39,6 +43,14 @@ public class CrystalManaExtractorScreen extends HandledScreen<CrystalManaExtract
                     Text.translatable("gui.sparkle-craft.crystal_mana_extractor.mana",
                             handler.getMana(), handler.getMaxMana()), mouseX, mouseY);
         }
+        manaFlowIndicator.update(handler.getInputPerSecond(),
+                handler.getOutputPerSecond(), textRenderer);
+        int flowX = backgroundWidth - manaFlowIndicator.getWidth() - FLOW_MARGIN;
+        if (isPointWithinBounds(flowX, FLOW_Y, manaFlowIndicator.getWidth(),
+                manaFlowIndicator.getHeight(), mouseX, mouseY)) {
+            context.drawTooltip(textRenderer, manaFlowIndicator.buildTooltip(),
+                    mouseX, mouseY);
+        }
     }
 
     @Override
@@ -56,5 +68,14 @@ public class CrystalManaExtractorScreen extends HandledScreen<CrystalManaExtract
                     MANA_TEXTURE_X, 0, manaWidth, MANA_HEIGHT);
             manaBarParticleEffect.render(context, x + MANA_X, y + MANA_Y, manaWidth, MANA_HEIGHT);
         }
+    }
+
+    @Override
+    protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
+        super.drawForeground(context, mouseX, mouseY);
+        manaFlowIndicator.update(handler.getInputPerSecond(),
+                handler.getOutputPerSecond(), textRenderer);
+        manaFlowIndicator.draw(context, textRenderer,
+                backgroundWidth - manaFlowIndicator.getWidth() - FLOW_MARGIN, FLOW_Y);
     }
 }

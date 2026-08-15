@@ -35,28 +35,36 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
     private boolean enabled;
     private int consumptionTick;
     private boolean syncedActive;
+    private int inputPerSecond;
+    private int outputPerSecond;
+    private int inputAccumulator;
+    private int outputAccumulator;
+    private int flowTick;
     private final PropertyDelegate propertyDelegate = new PropertyDelegate() {
         @Override
         public int get(int index) {
             return switch (index) {
                 case 0 -> mana;
                 case 1 -> enabled ? 1 : 0;
+                case 2 -> inputPerSecond;
+                case 3 -> outputPerSecond;
                 default -> 0;
             };
         }
 
         @Override
         public void set(int index, int value) {
-            if (index == 0) {
-                mana = value;
-            } else if (index == 1) {
-                enabled = value != 0;
+            switch (index) {
+                case 0 -> mana = value;
+                case 1 -> enabled = value != 0;
+                case 2 -> inputPerSecond = value;
+                case 3 -> outputPerSecond = value;
             }
         }
 
         @Override
         public int size() {
-            return 2;
+            return 4;
         }
     };
 
@@ -68,6 +76,15 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
                             FlyBeaconBlockEntity blockEntity) {
         if (!(world instanceof ServerWorld serverWorld)) {
             return;
+        }
+
+        blockEntity.flowTick++;
+        if (blockEntity.flowTick >= 20) {
+            blockEntity.inputPerSecond = blockEntity.inputAccumulator;
+            blockEntity.outputPerSecond = blockEntity.outputAccumulator;
+            blockEntity.inputAccumulator = 0;
+            blockEntity.outputAccumulator = 0;
+            blockEntity.flowTick = 0;
         }
 
         boolean active = blockEntity.isActive();
@@ -102,6 +119,7 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
         blockEntity.consumptionTick++;
         if (blockEntity.consumptionTick >= MANA_CONSUMPTION_INTERVAL_TICKS) {
             blockEntity.mana = Math.max(0, blockEntity.mana - MANA_PER_CONSUMPTION);
+            blockEntity.outputAccumulator += MANA_PER_CONSUMPTION;
             blockEntity.consumptionTick = 0;
             blockEntity.markDirty();
         }
@@ -120,6 +138,7 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
         int inserted = Math.min(Math.max(0, amount), MAX_MANA - mana);
         if (inserted > 0) {
             mana += inserted;
+            inputAccumulator += inserted;
             markDirty();
         }
         return inserted;

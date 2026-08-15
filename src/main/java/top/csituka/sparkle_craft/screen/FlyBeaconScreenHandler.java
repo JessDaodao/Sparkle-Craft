@@ -27,7 +27,7 @@ public class FlyBeaconScreenHandler extends ScreenHandler {
 
     public FlyBeaconScreenHandler(int syncId, PlayerInventory playerInventory,
                                   PacketByteBuf buf) {
-        this(syncId, playerInventory, new ArrayPropertyDelegate(2),
+        this(syncId, playerInventory, new ArrayPropertyDelegate(4),
                 ScreenHandlerContext.EMPTY, buf.readBlockPos(), null);
     }
 
@@ -44,7 +44,7 @@ public class FlyBeaconScreenHandler extends ScreenHandler {
                                    ScreenHandlerContext context, BlockPos blockPos,
                                    FlyBeaconBlockEntity blockEntity) {
         super(ModScreenHandlers.FLY_BEACON, syncId);
-        checkDataCount(propertyDelegate, 2);
+        checkDataCount(propertyDelegate, 4);
         this.propertyDelegate = propertyDelegate;
         this.context = context;
         this.blockPos = blockPos;
@@ -126,6 +126,14 @@ public class FlyBeaconScreenHandler extends ScreenHandler {
 
     public boolean isActive() {
         return isEnabled() && getMana() > 0;
+    }
+
+    public int getInputPerSecond() {
+        return propertyDelegate.get(2);
+    }
+
+    public int getOutputPerSecond() {
+        return propertyDelegate.get(3);
     }
 
     public BlockPos getBlockPos() {

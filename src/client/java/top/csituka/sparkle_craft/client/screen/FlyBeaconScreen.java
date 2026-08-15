@@ -17,6 +17,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import top.csituka.sparkle_craft.client.component.ManaBarParticleEffect;
+import top.csituka.sparkle_craft.client.component.ManaFlowIndicator;
 import top.csituka.sparkle_craft.screen.FlyBeaconScreenHandler;
 import top.csituka.sparkle_craft.sparkle_craft;
 
@@ -40,9 +41,12 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
     private static final int TOGGLE_Y = 47;
     private static final int TOGGLE_WIDTH = 70;
     private static final int TOGGLE_HEIGHT = 20;
+    private static final int FLOW_Y = 6;
+    private static final int FLOW_MARGIN = 8;
 
     private final ManaBarParticleEffect manaBarParticleEffect =
             new ManaBarParticleEffect(7, 0x80FFFFFF);
+    private final ManaFlowIndicator manaFlowIndicator = new ManaFlowIndicator();
     private ButtonWidget toggleButton;
 
     public FlyBeaconScreen(FlyBeaconScreenHandler handler, PlayerInventory inventory,
@@ -77,6 +81,14 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
                     Text.translatable("gui.sparkle-craft.fly_beacon.mana",
                             handler.getMana(), handler.getMaxMana()), mouseX, mouseY);
         }
+        manaFlowIndicator.update(handler.getInputPerSecond(),
+                handler.getOutputPerSecond(), textRenderer);
+        int flowX = backgroundWidth - manaFlowIndicator.getWidth() - FLOW_MARGIN;
+        if (isPointWithinBounds(flowX, FLOW_Y, manaFlowIndicator.getWidth(),
+                manaFlowIndicator.getHeight(), mouseX, mouseY)) {
+            context.drawTooltip(textRenderer, manaFlowIndicator.buildTooltip(),
+                    mouseX, mouseY);
+        }
     }
 
     @Override
@@ -84,6 +96,10 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
         super.drawForeground(context, mouseX, mouseY);
         context.drawText(textRenderer, Text.translatable("gui.sparkle-craft.fly_beacon.mana_label"),
                 MANA_X, 17, 0x404040, false);
+        manaFlowIndicator.update(handler.getInputPerSecond(),
+                handler.getOutputPerSecond(), textRenderer);
+        manaFlowIndicator.draw(context, textRenderer,
+                backgroundWidth - manaFlowIndicator.getWidth() - FLOW_MARGIN, FLOW_Y);
     }
 
     @Override

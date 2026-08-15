@@ -28,28 +28,36 @@ public class CrystalManaExtractorBlockEntity extends BlockEntity implements Name
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(1, ItemStack.EMPTY);
     private int conversionTicksRemaining;
     private int mana;
+    private int inputPerSecond;
+    private int outputPerSecond;
+    private int inputAccumulator;
+    private int outputAccumulator;
+    private int flowTick;
     private final PropertyDelegate propertyDelegate = new PropertyDelegate() {
         @Override
         public int get(int index) {
             return switch (index) {
                 case 0 -> mana;
                 case 1 -> conversionTicksRemaining;
+                case 2 -> inputPerSecond;
+                case 3 -> outputPerSecond;
                 default -> 0;
             };
         }
 
         @Override
         public void set(int index, int value) {
-            if (index == 0) {
-                mana = value;
-            } else if (index == 1) {
-                conversionTicksRemaining = value;
+            switch (index) {
+                case 0 -> mana = value;
+                case 1 -> conversionTicksRemaining = value;
+                case 2 -> inputPerSecond = value;
+                case 3 -> outputPerSecond = value;
             }
         }
 
         @Override
         public int size() {
-            return 2;
+            return 4;
         }
     };
 
@@ -59,6 +67,15 @@ public class CrystalManaExtractorBlockEntity extends BlockEntity implements Name
 
     public static void tick(World world, BlockPos pos, BlockState state,
                             CrystalManaExtractorBlockEntity blockEntity) {
+        blockEntity.flowTick++;
+        if (blockEntity.flowTick >= 20) {
+            blockEntity.inputPerSecond = blockEntity.inputAccumulator;
+            blockEntity.outputPerSecond = blockEntity.outputAccumulator;
+            blockEntity.inputAccumulator = 0;
+            blockEntity.outputAccumulator = 0;
+            blockEntity.flowTick = 0;
+        }
+
         boolean changed = false;
         if (blockEntity.conversionTicksRemaining > 0) {
             int manaAppliedBeforeTick = (CONVERSION_TIME - blockEntity.conversionTicksRemaining)
@@ -66,8 +83,10 @@ public class CrystalManaExtractorBlockEntity extends BlockEntity implements Name
             blockEntity.conversionTicksRemaining--;
             int manaAppliedThisTick = (CONVERSION_TIME - blockEntity.conversionTicksRemaining)
                     * MANA_PER_CRYSTAL / CONVERSION_TIME;
+            int produced = manaAppliedThisTick - manaAppliedBeforeTick;
+            blockEntity.inputAccumulator += produced;
             blockEntity.mana = Math.min(MAX_MANA,
-                    blockEntity.mana + manaAppliedThisTick - manaAppliedBeforeTick);
+                    blockEntity.mana + produced);
             changed = true;
             if (blockEntity.conversionTicksRemaining > 0) {
                 blockEntity.markDirty();
@@ -92,6 +111,7 @@ public class CrystalManaExtractorBlockEntity extends BlockEntity implements Name
         int extracted = Math.min(mana, Math.max(0, amount));
         if (extracted > 0) {
             mana -= extracted;
+            outputAccumulator += extracted;
             markDirty();
         }
         return extracted;
