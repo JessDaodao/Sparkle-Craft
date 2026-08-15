@@ -30,7 +30,7 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
     private static final int PREVIEW_WIDTH = 81;
     private static final int PREVIEW_HEIGHT = 52;
     private static final int PREVIEW_RADIUS = 10;
-    private static final float PREVIEW_SCALE = 2.0F;
+    private static final float PREVIEW_SCALE = 3.0F;
     private static final double PREVIEW_Y_OFFSET = -23.0;
     private static final int MANA_X = 95;
     private static final int MANA_Y = 28;

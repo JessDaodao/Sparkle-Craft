@@ -10,7 +10,7 @@
   "item.sparkle-craft.magic_crystal": "Magic Crystal",
   "block.sparkle-craft.magic_crystal_ore": "Magic Crystal Ore",
   "block.sparkle-craft.deepslate_magic_crystal_ore": "Deepslate Magic Crystal Ore",
-  "block.sparkle-craft.crystal_mana_extractor": "Crystal Mana Extractor",
+  "block.sparkle-craft.crystal_mana_extractor": "Mana Extractor",
   "block.sparkle-craft.mana_pipe": "Mana Pipe",
   "block.sparkle-craft.fly_beacon": "Flight Beacon",
   "gui.sparkle-craft.crystal_mana_extractor.mana": "Mana: %s / %s",
