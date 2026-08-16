@@ -11,7 +11,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class ManaTankBlockEntity extends BlockEntity {
 
-    public static final int MAX_MANA = 1000;
+    public static final int MAX_MANA = 5000;
 
     private int mana;
 
