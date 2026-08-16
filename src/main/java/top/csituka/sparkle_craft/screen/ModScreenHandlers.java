@@ -15,6 +15,11 @@ public class ModScreenHandlers {
                     new Identifier(sparkle_craft.MOD_ID, "crystal_mana_extractor"),
                     new ScreenHandlerType<>(CrystalManaExtractorScreenHandler::new, FeatureFlags.VANILLA_FEATURES));
 
+    public static final ScreenHandlerType<ManaTankScreenHandler> MANA_TANK =
+            Registry.register(Registries.SCREEN_HANDLER,
+                    new Identifier(sparkle_craft.MOD_ID, "mana_tank"),
+                    new ScreenHandlerType<>(ManaTankScreenHandler::new, FeatureFlags.VANILLA_FEATURES));
+
     public static final ScreenHandlerType<FlyBeaconScreenHandler> FLY_BEACON =
             Registry.register(Registries.SCREEN_HANDLER,
                     new Identifier(sparkle_craft.MOD_ID, "fly_beacon"),

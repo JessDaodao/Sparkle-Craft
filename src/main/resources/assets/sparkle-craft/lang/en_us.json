@@ -19,6 +19,7 @@
   "gui.sparkle-craft.fly_beacon.mana_label": "Mana",
   "gui.sparkle-craft.fly_beacon.enabled": "Enabled",
   "gui.sparkle-craft.fly_beacon.disabled": "Disabled",
+  "gui.sparkle-craft.mana_tank.mana": "Mana: %s / %s",
   "jade.sparkle-craft.mana_container.mana": "Mana: %s / %s",
   "config.jade.plugin_sparkle-craft.mana_pipe_mana": "Mana in container"
 }
