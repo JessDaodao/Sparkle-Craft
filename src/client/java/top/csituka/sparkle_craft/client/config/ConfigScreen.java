@@ -55,7 +55,7 @@ public class ConfigScreen extends Screen {
         context.getMatrices().translate(20.0f, 20.0f, 0.0f);
         context.getMatrices().scale(0.5f, 0.5f, 1.0f);
         context.drawTextWithShadow(textRenderer,
-                Text.literal("Sparkle Craft v" + modVersion + " \u00b7 Fabric"),
+                Text.literal("Sparkle Craft v" + modVersion + " · Fabric"),
                 0, 0, 0xAAAAAA);
         context.getMatrices().pop();
         context.drawTextWithShadow(textRenderer, title, 20, 28, 0xFFFFFF);
