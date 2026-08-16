@@ -14,6 +14,7 @@ import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import top.csituka.sparkle_craft.screen.ManaTankScreenHandler;
 
 public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandlerFactory {
@@ -21,22 +22,34 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
     public static final int MAX_MANA = 5000;
 
     private int mana;
+    private int inputPerSecond;
+    private int outputPerSecond;
+    private int inputAccumulator;
+    private int outputAccumulator;
+    private int flowTick;
     private final PropertyDelegate propertyDelegate = new PropertyDelegate() {
         @Override
         public int get(int index) {
-            return index == 0 ? mana : 0;
+            return switch (index) {
+                case 0 -> mana;
+                case 1 -> inputPerSecond;
+                case 2 -> outputPerSecond;
+                default -> 0;
+            };
         }
 
         @Override
         public void set(int index, int value) {
-            if (index == 0) {
-                mana = Math.max(0, Math.min(MAX_MANA, value));
+            switch (index) {
+                case 0 -> mana = Math.max(0, Math.min(MAX_MANA, value));
+                case 1 -> inputPerSecond = Math.max(0, value);
+                case 2 -> outputPerSecond = Math.max(0, value);
             }
         }
 
         @Override
         public int size() {
-            return 1;
+            return 3;
         }
     };
 
@@ -48,10 +61,23 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
         return mana;
     }
 
+    public static void tick(World world, BlockPos pos, BlockState state,
+                            ManaTankBlockEntity blockEntity) {
+        blockEntity.flowTick++;
+        if (blockEntity.flowTick >= 20) {
+            blockEntity.inputPerSecond = blockEntity.inputAccumulator;
+            blockEntity.outputPerSecond = blockEntity.outputAccumulator;
+            blockEntity.inputAccumulator = 0;
+            blockEntity.outputAccumulator = 0;
+            blockEntity.flowTick = 0;
+        }
+    }
+
     public int receiveMana(int amount) {
         int inserted = Math.min(Math.max(0, amount), MAX_MANA - mana);
         if (inserted > 0) {
             mana += inserted;
+            inputAccumulator += inserted;
             onManaChanged();
         }
         return inserted;
@@ -61,6 +87,7 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
         int extracted = Math.min(Math.max(0, amount), mana);
         if (extracted > 0) {
             mana -= extracted;
+            outputAccumulator += extracted;
             onManaChanged();
         }
         return extracted;

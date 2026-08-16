@@ -21,7 +21,7 @@ public class ManaTankScreenHandler extends ScreenHandler {
     private final ScreenHandlerContext context;
 
     public ManaTankScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new ArrayPropertyDelegate(1), ScreenHandlerContext.EMPTY);
+        this(syncId, playerInventory, new ArrayPropertyDelegate(3), ScreenHandlerContext.EMPTY);
     }
 
     public ManaTankScreenHandler(int syncId, PlayerInventory playerInventory,
@@ -35,7 +35,7 @@ public class ManaTankScreenHandler extends ScreenHandler {
                                   PropertyDelegate propertyDelegate,
                                   ScreenHandlerContext context) {
         super(ModScreenHandlers.MANA_TANK, syncId);
-        checkDataCount(propertyDelegate, 1);
+        checkDataCount(propertyDelegate, 3);
         this.propertyDelegate = propertyDelegate;
         this.context = context;
 
@@ -98,5 +98,13 @@ public class ManaTankScreenHandler extends ScreenHandler {
 
     public int getScaledMana(int height) {
         return Math.min(height, getMana() * height / getMaxMana());
+    }
+
+    public int getInputPerSecond() {
+        return propertyDelegate.get(1);
+    }
+
+    public int getOutputPerSecond() {
+        return propertyDelegate.get(2);
     }
 }

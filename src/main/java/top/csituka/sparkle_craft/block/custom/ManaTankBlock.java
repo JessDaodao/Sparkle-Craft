@@ -6,6 +6,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -24,6 +26,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import top.csituka.sparkle_craft.block.ModBlocks;
 import top.csituka.sparkle_craft.block.entity.ManaTankBlockEntity;
+import top.csituka.sparkle_craft.block.entity.ModBlockEntities;
 
 public class ManaTankBlock extends BlockWithEntity {
 
@@ -114,6 +117,14 @@ public class ManaTankBlock extends BlockWithEntity {
     @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state,
+                                                                  BlockEntityType<T> type) {
+        return world.isClient
+                ? null
+                : checkType(type, ModBlockEntities.MANA_TANK, ManaTankBlockEntity::tick);
     }
 
     public static BooleanProperty getConnectionProperty(Direction direction) {

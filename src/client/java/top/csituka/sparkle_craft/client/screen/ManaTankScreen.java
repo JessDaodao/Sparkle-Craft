@@ -7,6 +7,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import top.csituka.sparkle_craft.client.component.ManaBarParticleEffect;
+import top.csituka.sparkle_craft.client.component.ManaFlowIndicator;
 import top.csituka.sparkle_craft.screen.ManaTankScreenHandler;
 import top.csituka.sparkle_craft.sparkle_craft;
 
@@ -21,9 +22,12 @@ public class ManaTankScreen extends HandledScreen<ManaTankScreenHandler> {
     private static final int MANA_TEXTURE_X = 176;
     private static final int MANA_TEXTURE_Y = 0;
     private static final int WAVE_DEPTH = 2;
+    private static final int FLOW_Y = 6;
+    private static final int FLOW_MARGIN = 8;
 
     private final ManaBarParticleEffect manaBarParticleEffect =
             new ManaBarParticleEffect(7, 0x80FFFFFF);
+    private final ManaFlowIndicator manaFlowIndicator = new ManaFlowIndicator();
 
     public ManaTankScreen(ManaTankScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -41,6 +45,23 @@ public class ManaTankScreen extends HandledScreen<ManaTankScreenHandler> {
                     Text.translatable("gui.sparkle-craft.mana_tank.mana",
                             handler.getMana(), handler.getMaxMana()), mouseX, mouseY);
         }
+        manaFlowIndicator.update(handler.getInputPerSecond(),
+                handler.getOutputPerSecond(), textRenderer);
+        int flowX = backgroundWidth - manaFlowIndicator.getWidth() - FLOW_MARGIN;
+        if (isPointWithinBounds(flowX, FLOW_Y, manaFlowIndicator.getWidth(),
+                manaFlowIndicator.getHeight(), mouseX, mouseY)) {
+            context.drawTooltip(textRenderer, manaFlowIndicator.buildTooltip(),
+                    mouseX, mouseY);
+        }
+    }
+
+    @Override
+    protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
+        super.drawForeground(context, mouseX, mouseY);
+        manaFlowIndicator.update(handler.getInputPerSecond(),
+                handler.getOutputPerSecond(), textRenderer);
+        manaFlowIndicator.draw(context, textRenderer,
+                backgroundWidth - manaFlowIndicator.getWidth() - FLOW_MARGIN, FLOW_Y);
     }
 
     @Override
