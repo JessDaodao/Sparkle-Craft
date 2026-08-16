@@ -13,8 +13,11 @@ import top.csituka.sparkle_craft.block.custom.ManaPipeBlock;
 
 import java.util.ArrayDeque;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 public class ManaPipeBlockEntity extends BlockEntity {
 
@@ -22,6 +25,7 @@ public class ManaPipeBlockEntity extends BlockEntity {
     public static final int TRANSFER_RATE = 10;
     private static final int MAX_NETWORK_SEARCH = 256;
     private static final int TANK_CONNECTION_DIRECTION_DELAY_TICKS = 20;
+    private static final Map<World, ManaNetworkCache> NETWORK_CACHES = new WeakHashMap<>();
 
     private int mana;
     private final EnumMap<Direction, TankConnectionFlow> tankConnectionFlows =
@@ -44,6 +48,7 @@ public class ManaPipeBlockEntity extends BlockEntity {
 
         blockEntity.tickTankConnectionFlows(world, currentState);
         int manaBeforeTick = blockEntity.mana;
+        ManaNetworkState cachedNetworkState = getCachedManaNetworkState(world, pos);
         boolean connectedToTank = hasAdjacentManaTank(world, pos, currentState);
         int pullBudget = Math.min(TRANSFER_RATE, MAX_MANA - blockEntity.mana);
         if (pullBudget > 0) {
@@ -60,6 +65,9 @@ public class ManaPipeBlockEntity extends BlockEntity {
                         direction.getOpposite())) {
                     int extracted = extractor.extractMana(pullBudget);
                     blockEntity.mana += extracted;
+                    if (cachedNetworkState != null) {
+                        cachedNetworkState.consumeTankDemand(extracted);
+                    }
                     pullBudget -= extracted;
                     if (pullBudget == 0) {
                         break;
@@ -68,10 +76,15 @@ public class ManaPipeBlockEntity extends BlockEntity {
             }
         }
 
-        int tankPullBudget = 0;
-        if (connectedToTank && pullBudget > 0) {
-            tankPullBudget = Math.min(pullBudget, getManaDemand(world, pos));
+        ManaNetworkState networkState = null;
+        if (connectedToTank) {
+            networkState = cachedNetworkState != null
+                    ? cachedNetworkState
+                    : getManaNetworkState(world, pos);
         }
+        int tankPullBudget = networkState == null
+                ? 0
+                : Math.min(pullBudget, networkState.getRemainingTankDemand());
         if (tankPullBudget > 0) {
             for (Direction direction : Direction.values()) {
                 if (!currentState.get(ManaPipeBlock.getConnectionProperty(direction))) {
@@ -85,6 +98,7 @@ public class ManaPipeBlockEntity extends BlockEntity {
                     if (extracted > 0) {
                         blockEntity.markTankConnectionFlow(
                                 direction, TankConnectionDirection.OUTPUT);
+                        networkState.consumeTankDemand(extracted);
                     }
                     tankPullBudget -= extracted;
                     if (tankPullBudget == 0) {
@@ -122,7 +136,8 @@ public class ManaPipeBlockEntity extends BlockEntity {
             }
         }
 
-        if (connectedToTank && pushBudget > 0 && getManaDemand(world, pos) == 0) {
+        if (networkState != null && pushBudget > 0
+                && networkState.getRemainingTankDemand() == 0) {
             for (Direction direction : Direction.values()) {
                 if (pushBudget == 0
                         || !currentState.get(ManaPipeBlock.getConnectionProperty(direction))
@@ -160,19 +175,30 @@ public class ManaPipeBlockEntity extends BlockEntity {
         return false;
     }
 
-    private static int getManaDemand(World world, BlockPos startPos) {
+    private static ManaNetworkState getManaNetworkState(World world, BlockPos startPos) {
+        ManaNetworkCache cache = getManaNetworkCache(world);
+        ManaNetworkState cachedState = cache.networksByPipe.get(startPos);
+        if (cachedState != null) {
+            return cachedState;
+        }
+
         ArrayDeque<BlockPos> pending = new ArrayDeque<>();
         Set<BlockPos> visited = new HashSet<>();
         Set<BlockPos> consumers = new HashSet<>();
         pending.add(startPos);
         visited.add(startPos);
-        int demand = 0;
+        long demand = 0;
+        long storedPipeMana = 0;
 
-        while (!pending.isEmpty() && visited.size() <= MAX_NETWORK_SEARCH) {
+        while (!pending.isEmpty()) {
             BlockPos currentPos = pending.removeFirst();
             BlockState currentState = world.getBlockState(currentPos);
             if (!currentState.isOf(ModBlocks.MANA_PIPE)) {
                 continue;
+            }
+            BlockEntity currentBlockEntity = world.getBlockEntity(currentPos);
+            if (currentBlockEntity instanceof ManaPipeBlockEntity pipe) {
+                storedPipeMana += pipe.mana;
             }
 
             for (Direction direction : Direction.values()) {
@@ -183,18 +209,40 @@ public class ManaPipeBlockEntity extends BlockEntity {
                 BlockEntity neighbor = world.getBlockEntity(neighborPos);
                 if (neighbor instanceof FlyBeaconBlockEntity beacon
                         && consumers.add(neighborPos)) {
-                    demand = Math.min(TRANSFER_RATE, demand + beacon.getManaSpace());
+                    demand += beacon.getManaSpace();
                 }
                 if (world.getBlockState(neighborPos).isOf(ModBlocks.MANA_PIPE)
+                        && visited.size() < MAX_NETWORK_SEARCH
                         && visited.add(neighborPos)) {
                     pending.addLast(neighborPos);
                 }
             }
         }
-        return demand;
+
+        int remainingDemand = (int) Math.min(Integer.MAX_VALUE,
+                Math.max(0L, demand - storedPipeMana));
+        ManaNetworkState networkState = new ManaNetworkState(remainingDemand);
+        for (BlockPos pipePos : visited) {
+            cache.networksByPipe.put(pipePos, networkState);
+        }
+        return networkState;
+    }
+
+    private static ManaNetworkState getCachedManaNetworkState(World world, BlockPos pos) {
+        return getManaNetworkCache(world).networksByPipe.get(pos);
+    }
+
+    private static ManaNetworkCache getManaNetworkCache(World world) {
+        ManaNetworkCache cache = NETWORK_CACHES.computeIfAbsent(world,
+                ignored -> new ManaNetworkCache());
+        cache.prepareForTick(world.getTime());
+        return cache;
     }
 
     private void tickTankConnectionFlows(World world, BlockState state) {
+        if (tankConnectionFlows.isEmpty()) {
+            return;
+        }
         for (Direction direction : Direction.values()) {
             if (!state.get(ManaPipeBlock.getConnectionProperty(direction))
                     || !(world.getBlockEntity(pos.offset(direction))
@@ -261,6 +309,36 @@ public class ManaPipeBlockEntity extends BlockEntity {
     }
 
     private record TankConnectionFlow(TankConnectionDirection direction, int remainingTicks) {
+    }
+
+    private static final class ManaNetworkCache {
+
+        private final Map<BlockPos, ManaNetworkState> networksByPipe = new HashMap<>();
+        private long tick = Long.MIN_VALUE;
+
+        private void prepareForTick(long currentTick) {
+            if (tick != currentTick) {
+                tick = currentTick;
+                networksByPipe.clear();
+            }
+        }
+    }
+
+    private static final class ManaNetworkState {
+
+        private int remainingTankDemand;
+
+        private ManaNetworkState(int remainingTankDemand) {
+            this.remainingTankDemand = remainingTankDemand;
+        }
+
+        private int getRemainingTankDemand() {
+            return remainingTankDemand;
+        }
+
+        private void consumeTankDemand(int amount) {
+            remainingTankDemand = Math.max(0, remainingTankDemand - amount);
+        }
     }
 
     @Override

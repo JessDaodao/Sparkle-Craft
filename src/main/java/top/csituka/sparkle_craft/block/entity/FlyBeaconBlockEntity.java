@@ -16,6 +16,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import top.csituka.sparkle_craft.screen.FlyBeaconScreenHandler;
@@ -100,7 +101,11 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
         double centerZ = pos.getZ() + 0.5;
         double minY = pos.getY() - FLIGHT_BELOW;
         double maxY = pos.getY() + FLIGHT_ABOVE;
-        List<ServerPlayerEntity> players = serverWorld.getPlayers(player -> {
+        Box flightBounds = new Box(
+                centerX - FLIGHT_RADIUS, minY, centerZ - FLIGHT_RADIUS,
+                centerX + FLIGHT_RADIUS, maxY, centerZ + FLIGHT_RADIUS);
+        List<ServerPlayerEntity> players = serverWorld.getEntitiesByClass(ServerPlayerEntity.class,
+                flightBounds, player -> {
             if (player.isSpectator() || player.isCreative()) {
                 return false;
             }

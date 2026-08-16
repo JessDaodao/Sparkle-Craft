@@ -21,6 +21,9 @@ import top.csituka.sparkle_craft.client.component.ManaFlowIndicator;
 import top.csituka.sparkle_craft.screen.FlyBeaconScreenHandler;
 import top.csituka.sparkle_craft.sparkle_craft;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
 
     private static final Identifier TEXTURE = new Identifier(sparkle_craft.MOD_ID,
@@ -30,6 +33,7 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
     private static final int PREVIEW_WIDTH = 81;
     private static final int PREVIEW_HEIGHT = 52;
     private static final int PREVIEW_RADIUS = 10;
+    private static final int PREVIEW_REFRESH_INTERVAL_TICKS = 20;
     private static final float PREVIEW_SCALE = 3.0F;
     private static final double PREVIEW_Y_OFFSET = -23.0;
     private static final int MANA_X = 95;
@@ -47,6 +51,8 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
     private final ManaBarParticleEffect manaBarParticleEffect =
             new ManaBarParticleEffect(7, 0x80FFFFFF);
     private final ManaFlowIndicator manaFlowIndicator = new ManaFlowIndicator();
+    private final List<PreviewBlock> terrainPreview = new ArrayList<>();
+    private long lastTerrainPreviewTick = Long.MIN_VALUE;
     private ButtonWidget toggleButton;
 
     public FlyBeaconScreen(FlyBeaconScreenHandler handler, PlayerInventory inventory,
@@ -126,6 +132,14 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
             return;
         }
 
+        long worldTime = minecraft.world.getTime();
+        if (lastTerrainPreviewTick == Long.MIN_VALUE
+                || worldTime < lastTerrainPreviewTick
+                || worldTime - lastTerrainPreviewTick >= PREVIEW_REFRESH_INTERVAL_TICKS) {
+            refreshTerrainPreview(minecraft, handler.getBlockPos());
+            lastTerrainPreviewTick = worldTime;
+        }
+
         context.draw();
         context.enableScissor(x + PREVIEW_X + 1, y + PREVIEW_Y + 1,
                 x + PREVIEW_X + PREVIEW_WIDTH - 1,
@@ -142,12 +156,9 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
         float rotation = (minecraft.world.getTime() + delta) * 0.5F;
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
 
-        BlockPos beaconPos = handler.getBlockPos();
-        for (int offsetZ = -PREVIEW_RADIUS; offsetZ <= PREVIEW_RADIUS; offsetZ++) {
-            for (int offsetX = -PREVIEW_RADIUS; offsetX <= PREVIEW_RADIUS; offsetX++) {
-                renderPreviewColumn(context, minecraft, matrices, beaconPos,
-                        offsetX, offsetZ);
-            }
+        for (PreviewBlock previewBlock : terrainPreview) {
+            renderPreviewBlock(context, minecraft, matrices, previewBlock.state(),
+                    previewBlock.offsetX(), previewBlock.offsetY(), previewBlock.offsetZ());
         }
 
         matrices.pop();
@@ -157,18 +168,19 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
         context.disableScissor();
     }
 
-    private void renderPreviewColumn(DrawContext context, MinecraftClient minecraft,
-                                     MatrixStack matrices, BlockPos beaconPos,
-                                     int offsetX, int offsetZ) {
-        for (int offsetY = 10; offsetY >= -5; offsetY--) {
-            BlockState state = minecraft.world.getBlockState(
-                    beaconPos.add(offsetX, offsetY, offsetZ));
-            if (state.isAir() || state.getRenderType() == BlockRenderType.INVISIBLE) {
-                continue;
+    private void refreshTerrainPreview(MinecraftClient minecraft, BlockPos beaconPos) {
+        terrainPreview.clear();
+        for (int offsetZ = -PREVIEW_RADIUS; offsetZ <= PREVIEW_RADIUS; offsetZ++) {
+            for (int offsetX = -PREVIEW_RADIUS; offsetX <= PREVIEW_RADIUS; offsetX++) {
+                for (int offsetY = 10; offsetY >= -5; offsetY--) {
+                    BlockState state = minecraft.world.getBlockState(
+                            beaconPos.add(offsetX, offsetY, offsetZ));
+                    if (state.isAir() || state.getRenderType() == BlockRenderType.INVISIBLE) {
+                        continue;
+                    }
+                    terrainPreview.add(new PreviewBlock(state, offsetX, offsetY, offsetZ));
+                }
             }
-
-            renderPreviewBlock(context, minecraft, matrices, state,
-                    offsetX, offsetY, offsetZ);
         }
     }
 
@@ -190,5 +202,8 @@ public class FlyBeaconScreen extends HandledScreen<FlyBeaconScreenHandler> {
         return Text.translatable(handler.isEnabled()
                 ? "gui.sparkle-craft.fly_beacon.enabled"
                 : "gui.sparkle-craft.fly_beacon.disabled");
+    }
+
+    private record PreviewBlock(BlockState state, int offsetX, int offsetY, int offsetZ) {
     }
 }
