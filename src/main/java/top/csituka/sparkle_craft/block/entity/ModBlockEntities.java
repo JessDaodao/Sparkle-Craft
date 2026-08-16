@@ -22,6 +22,12 @@ public class ModBlockEntities {
                     FabricBlockEntityTypeBuilder.create(ManaPipeBlockEntity::new,
                             ModBlocks.MANA_PIPE).build());
 
+    public static final BlockEntityType<ManaTankBlockEntity> MANA_TANK =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE,
+                    new Identifier(sparkle_craft.MOD_ID, "mana_tank"),
+                    FabricBlockEntityTypeBuilder.create(ManaTankBlockEntity::new,
+                            ModBlocks.MANA_TANK).build());
+
     public static final BlockEntityType<FlyBeaconBlockEntity> FLY_BEACON =
             Registry.register(Registries.BLOCK_ENTITY_TYPE,
                     new Identifier(sparkle_craft.MOD_ID, "fly_beacon"),

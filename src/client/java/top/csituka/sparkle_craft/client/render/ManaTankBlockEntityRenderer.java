@@ -1,7 +1,5 @@
 package top.csituka.sparkle_craft.client.render;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -11,106 +9,43 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
-import top.csituka.sparkle_craft.block.ModBlocks;
-import top.csituka.sparkle_craft.block.custom.ManaPipeBlock;
-import top.csituka.sparkle_craft.block.entity.ManaPipeBlockEntity;
-import top.csituka.sparkle_craft.block.entity.ManaTankBlockEntity;
-import top.csituka.sparkle_craft.sparkle_craft;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import top.csituka.sparkle_craft.block.ModBlocks;
+import top.csituka.sparkle_craft.block.entity.ManaTankBlockEntity;
+import top.csituka.sparkle_craft.sparkle_craft;
 
-public class ManaPipeBlockEntityRenderer implements BlockEntityRenderer<ManaPipeBlockEntity> {
+public class ManaTankBlockEntityRenderer implements BlockEntityRenderer<ManaTankBlockEntity> {
 
     private static final Identifier MANA_TEXTURE = new Identifier(sparkle_craft.MOD_ID,
             "textures/block/mana.png");
-    private static final float MIN = 5.0f / 16.0f;
-    private static final float MAX = 11.0f / 16.0f;
+    private static final float MIN_XZ = 3.5f / 16.0f;
+    private static final float MAX_XZ = 12.5f / 16.0f;
+    private static final float MIN_Y = 3.25f / 16.0f;
+    private static final float MAX_Y = 12.75f / 16.0f;
+    private static final float MIN_VISIBLE_HEIGHT = 1.0f / 16.0f;
 
-    public ManaPipeBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
+    public ManaTankBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     }
 
     @Override
-    public void render(ManaPipeBlockEntity blockEntity, float tickDelta, MatrixStack matrices,
+    public void render(ManaTankBlockEntity blockEntity, float tickDelta, MatrixStack matrices,
                        VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        BlockState state = blockEntity.getCachedState();
-        if (!state.isOf(ModBlocks.MANA_PIPE) || !state.get(ManaPipeBlock.HAS_MANA)) {
+        if (!blockEntity.getCachedState().isOf(ModBlocks.MANA_TANK)
+                || blockEntity.getMana() <= 0) {
             return;
         }
 
+        float fillRatio = blockEntity.getMana() / (float) ManaTankBlockEntity.MAX_MANA;
+        float fillHeight = Math.max(MIN_VISIBLE_HEIGHT, (MAX_Y - MIN_Y) * fillRatio);
+        float manaTop = Math.min(MAX_Y, MIN_Y + fillHeight);
         VertexConsumer vertices = vertexConsumers.getBuffer(
                 RenderLayer.getEntityCutoutNoCull(MANA_TEXTURE));
         MatrixStack.Entry entry = matrices.peek();
-        for (Direction direction : Direction.values()) {
-            if (state.get(ManaPipeBlock.getConnectionProperty(direction))) {
-                renderArm(vertices, entry, direction,
-                        !hasManaContinuation(blockEntity, direction), overlay);
-            } else {
-                renderFace(vertices, entry, direction, MIN, MIN, MIN, MAX, MAX, MAX, overlay);
-            }
-        }
-    }
-
-    private static void renderArm(VertexConsumer vertices, MatrixStack.Entry entry,
-                                  Direction direction, boolean renderEnd, int overlay) {
-        float minX = MIN;
-        float minY = MIN;
-        float minZ = MIN;
-        float maxX = MAX;
-        float maxY = MAX;
-        float maxZ = MAX;
-
-        switch (direction) {
-            case NORTH -> {
-                minZ = 0.0f;
-                maxZ = MIN;
-            }
-            case EAST -> {
-                minX = MAX;
-                maxX = 1.0f;
-            }
-            case SOUTH -> {
-                minZ = MAX;
-                maxZ = 1.0f;
-            }
-            case WEST -> {
-                minX = 0.0f;
-                maxX = MIN;
-            }
-            case UP -> {
-                minY = MAX;
-                maxY = 1.0f;
-            }
-            case DOWN -> {
-                minY = 0.0f;
-                maxY = MIN;
-            }
-        }
-
         for (Direction face : Direction.values()) {
-            if (face.getAxis() != direction.getAxis()) {
-                renderFace(vertices, entry, face, minX, minY, minZ,
-                        maxX, maxY, maxZ, overlay);
-            }
+            renderFace(vertices, entry, face, MIN_XZ, MIN_Y, MIN_XZ,
+                    MAX_XZ, manaTop, MAX_XZ, overlay);
         }
-        if (renderEnd) {
-            renderFace(vertices, entry, direction, minX, minY, minZ,
-                    maxX, maxY, maxZ, overlay);
-        }
-    }
-
-    private static boolean hasManaContinuation(ManaPipeBlockEntity blockEntity,
-                                               Direction direction) {
-        if (blockEntity.getWorld() == null) {
-            return false;
-        }
-        BlockState neighborState = blockEntity.getWorld().getBlockState(
-                blockEntity.getPos().offset(direction));
-        BlockEntity neighbor = blockEntity.getWorld().getBlockEntity(
-                blockEntity.getPos().offset(direction));
-        return neighborState.isOf(ModBlocks.CRYSTAL_MANA_EXTRACTOR)
-                || (neighborState.isOf(ModBlocks.MANA_PIPE)
-                && neighborState.get(ManaPipeBlock.HAS_MANA))
-                || (neighbor instanceof ManaTankBlockEntity tank && tank.getMana() > 0);
     }
 
     private static void renderFace(VertexConsumer vertices, MatrixStack.Entry entry,
@@ -165,7 +100,7 @@ public class ManaPipeBlockEntityRenderer implements BlockEntityRenderer<ManaPipe
                 .texture(getU(face, x, z), getV(face, y, z))
                 .overlay(overlay)
                 .light(LightmapTextureManager.MAX_LIGHT_COORDINATE)
-                .normal(normalMatrix, 0.0f, 1.0f, 0.0f)
+                .normal(normalMatrix, face.getOffsetX(), face.getOffsetY(), face.getOffsetZ())
                 .next();
     }
 

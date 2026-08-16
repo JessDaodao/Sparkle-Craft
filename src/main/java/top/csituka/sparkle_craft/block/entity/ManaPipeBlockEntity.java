@@ -11,10 +11,15 @@ import top.csituka.sparkle_craft.block.ModBlocks;
 import top.csituka.sparkle_craft.block.custom.CrystalManaExtractorBlock;
 import top.csituka.sparkle_craft.block.custom.ManaPipeBlock;
 
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Set;
+
 public class ManaPipeBlockEntity extends BlockEntity {
 
     public static final int MAX_MANA = 100;
     public static final int TRANSFER_RATE = 10;
+    private static final int MAX_NETWORK_SEARCH = 256;
 
     private int mana;
 
@@ -34,6 +39,7 @@ public class ManaPipeBlockEntity extends BlockEntity {
         }
 
         int manaBeforeTick = blockEntity.mana;
+        boolean connectedToTank = hasAdjacentManaTank(world, pos, currentState);
         int pullBudget = Math.min(TRANSFER_RATE, MAX_MANA - blockEntity.mana);
         if (pullBudget > 0) {
             for (Direction direction : Direction.values()) {
@@ -51,6 +57,30 @@ public class ManaPipeBlockEntity extends BlockEntity {
                     blockEntity.mana += extracted;
                     pullBudget -= extracted;
                     if (pullBudget == 0) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        int manaPulledFromTank = 0;
+        int tankPullBudget = 0;
+        if (connectedToTank && blockEntity.mana == 0 && pullBudget > 0) {
+            tankPullBudget = Math.min(pullBudget,
+                    getManaNetworkState(world, pos).unmetDemand());
+        }
+        if (tankPullBudget > 0) {
+            for (Direction direction : Direction.values()) {
+                if (!currentState.get(ManaPipeBlock.getConnectionProperty(direction))) {
+                    continue;
+                }
+                BlockEntity neighbor = world.getBlockEntity(pos.offset(direction));
+                if (neighbor instanceof ManaTankBlockEntity tank) {
+                    int extracted = tank.extractMana(tankPullBudget);
+                    blockEntity.mana += extracted;
+                    manaPulledFromTank += extracted;
+                    tankPullBudget -= extracted;
+                    if (tankPullBudget == 0) {
                         break;
                     }
                 }
@@ -85,10 +115,80 @@ public class ManaPipeBlockEntity extends BlockEntity {
             }
         }
 
+        if (connectedToTank && manaPulledFromTank == 0 && pushBudget > 0
+                && getManaNetworkState(world, pos).demand() == 0) {
+            for (Direction direction : Direction.values()) {
+                if (pushBudget == 0
+                        || !currentState.get(ManaPipeBlock.getConnectionProperty(direction))) {
+                    continue;
+                }
+                BlockEntity neighbor = world.getBlockEntity(pos.offset(direction));
+                if (neighbor instanceof ManaTankBlockEntity tank) {
+                    int inserted = tank.receiveMana(pushBudget);
+                    blockEntity.mana -= inserted;
+                    pushBudget -= inserted;
+                }
+            }
+        }
+
         if (blockEntity.mana != manaBeforeTick) {
             blockEntity.markDirty();
         }
         blockEntity.syncManaState();
+    }
+
+    private static boolean hasAdjacentManaTank(World world, BlockPos pos, BlockState state) {
+        for (Direction direction : Direction.values()) {
+            if (state.get(ManaPipeBlock.getConnectionProperty(direction))
+                    && world.getBlockEntity(pos.offset(direction)) instanceof ManaTankBlockEntity) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static ManaNetworkState getManaNetworkState(World world, BlockPos startPos) {
+        ArrayDeque<BlockPos> pending = new ArrayDeque<>();
+        Set<BlockPos> visited = new HashSet<>();
+        Set<BlockPos> consumers = new HashSet<>();
+        pending.add(startPos);
+        visited.add(startPos);
+        int demand = 0;
+        int bufferedMana = 0;
+
+        while (!pending.isEmpty() && visited.size() <= MAX_NETWORK_SEARCH) {
+            BlockPos currentPos = pending.removeFirst();
+            BlockState currentState = world.getBlockState(currentPos);
+            if (!currentState.isOf(ModBlocks.MANA_PIPE)) {
+                continue;
+            }
+            if (world.getBlockEntity(currentPos) instanceof ManaPipeBlockEntity pipe) {
+                bufferedMana = Math.min(TRANSFER_RATE, bufferedMana + pipe.mana);
+            }
+
+            for (Direction direction : Direction.values()) {
+                if (!currentState.get(ManaPipeBlock.getConnectionProperty(direction))) {
+                    continue;
+                }
+                BlockPos neighborPos = currentPos.offset(direction);
+                BlockEntity neighbor = world.getBlockEntity(neighborPos);
+                if (neighbor instanceof FlyBeaconBlockEntity beacon
+                        && consumers.add(neighborPos)) {
+                    demand = Math.min(TRANSFER_RATE, demand + beacon.getManaSpace());
+                }
+                if (world.getBlockState(neighborPos).isOf(ModBlocks.MANA_PIPE)
+                        && visited.add(neighborPos)) {
+                    pending.addLast(neighborPos);
+                }
+            }
+        }
+        return new ManaNetworkState(demand, bufferedMana);
+    }
+
+    private record ManaNetworkState(int demand, int bufferedMana) {
+        private int unmetDemand() {
+            return Math.max(0, demand - bufferedMana);
+        }
     }
 
     private int receiveMana(int amount) {

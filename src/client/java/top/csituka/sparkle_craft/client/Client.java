@@ -9,6 +9,7 @@ import top.csituka.sparkle_craft.block.ModBlocks;
 import top.csituka.sparkle_craft.block.entity.ModBlockEntities;
 import top.csituka.sparkle_craft.client.render.FlyBeaconBarrierRenderer;
 import top.csituka.sparkle_craft.client.render.ManaPipeBlockEntityRenderer;
+import top.csituka.sparkle_craft.client.render.ManaTankBlockEntityRenderer;
 import top.csituka.sparkle_craft.client.screen.CrystalManaExtractorScreen;
 import top.csituka.sparkle_craft.client.screen.FlyBeaconScreen;
 import top.csituka.sparkle_craft.screen.ModScreenHandlers;
@@ -20,8 +21,11 @@ public class Client implements ClientModInitializer {
         HandledScreens.register(ModScreenHandlers.CRYSTAL_MANA_EXTRACTOR, CrystalManaExtractorScreen::new);
         HandledScreens.register(ModScreenHandlers.FLY_BEACON, FlyBeaconScreen::new);
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.MANA_PIPE, RenderLayer.getTranslucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.MANA_TANK, RenderLayer.getTranslucent());
         BlockEntityRendererFactories.register(ModBlockEntities.MANA_PIPE,
                 ManaPipeBlockEntityRenderer::new);
+        BlockEntityRendererFactories.register(ModBlockEntities.MANA_TANK,
+                ManaTankBlockEntityRenderer::new);
         FlyBeaconBarrierRenderer.register();
     }
 }
