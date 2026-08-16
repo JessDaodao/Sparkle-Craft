@@ -12,6 +12,7 @@ import top.csituka.sparkle_craft.block.custom.CrystalManaExtractorBlock;
 import top.csituka.sparkle_craft.block.custom.ManaPipeBlock;
 
 import java.util.ArrayDeque;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,8 +21,11 @@ public class ManaPipeBlockEntity extends BlockEntity {
     public static final int MAX_MANA = 100;
     public static final int TRANSFER_RATE = 10;
     private static final int MAX_NETWORK_SEARCH = 256;
+    private static final int TANK_CONNECTION_DIRECTION_DELAY_TICKS = 20;
 
     private int mana;
+    private final EnumMap<Direction, TankConnectionFlow> tankConnectionFlows =
+            new EnumMap<>(Direction.class);
 
     public int getMana() {
         return mana;
@@ -38,6 +42,7 @@ public class ManaPipeBlockEntity extends BlockEntity {
             return;
         }
 
+        blockEntity.tickTankConnectionFlows(world, currentState);
         int manaBeforeTick = blockEntity.mana;
         boolean connectedToTank = hasAdjacentManaTank(world, pos, currentState);
         int pullBudget = Math.min(TRANSFER_RATE, MAX_MANA - blockEntity.mana);
@@ -63,7 +68,6 @@ public class ManaPipeBlockEntity extends BlockEntity {
             }
         }
 
-        int manaPulledFromTank = 0;
         int tankPullBudget = 0;
         if (connectedToTank && pullBudget > 0) {
             tankPullBudget = Math.min(pullBudget, getManaDemand(world, pos));
@@ -74,10 +78,14 @@ public class ManaPipeBlockEntity extends BlockEntity {
                     continue;
                 }
                 BlockEntity neighbor = world.getBlockEntity(pos.offset(direction));
-                if (neighbor instanceof ManaTankBlockEntity tank) {
+                if (neighbor instanceof ManaTankBlockEntity tank
+                        && blockEntity.canPullFromTank(direction)) {
                     int extracted = tank.extractMana(tankPullBudget);
                     blockEntity.mana += extracted;
-                    manaPulledFromTank += extracted;
+                    if (extracted > 0) {
+                        blockEntity.markTankConnectionFlow(
+                                direction, TankConnectionDirection.OUTPUT);
+                    }
                     tankPullBudget -= extracted;
                     if (tankPullBudget == 0) {
                         break;
@@ -114,18 +122,22 @@ public class ManaPipeBlockEntity extends BlockEntity {
             }
         }
 
-        if (connectedToTank && manaPulledFromTank == 0 && pushBudget > 0
-                && getManaDemand(world, pos) == 0) {
+        if (connectedToTank && pushBudget > 0 && getManaDemand(world, pos) == 0) {
             for (Direction direction : Direction.values()) {
                 if (pushBudget == 0
-                        || !currentState.get(ManaPipeBlock.getConnectionProperty(direction))) {
+                        || !currentState.get(ManaPipeBlock.getConnectionProperty(direction))
+                        || !blockEntity.canPushToTank(direction)) {
                     continue;
                 }
                 BlockEntity neighbor = world.getBlockEntity(pos.offset(direction));
                 if (neighbor instanceof ManaTankBlockEntity tank) {
                     int inserted = tank.receiveMana(pushBudget);
-                    blockEntity.mana -= inserted;
-                    pushBudget -= inserted;
+                    if (inserted > 0) {
+                        blockEntity.mana -= inserted;
+                        pushBudget -= inserted;
+                        blockEntity.markTankConnectionFlow(
+                                direction, TankConnectionDirection.INPUT);
+                    }
                 }
             }
         }
@@ -182,6 +194,45 @@ public class ManaPipeBlockEntity extends BlockEntity {
         return demand;
     }
 
+    private void tickTankConnectionFlows(World world, BlockState state) {
+        for (Direction direction : Direction.values()) {
+            if (!state.get(ManaPipeBlock.getConnectionProperty(direction))
+                    || !(world.getBlockEntity(pos.offset(direction))
+                    instanceof ManaTankBlockEntity)) {
+                tankConnectionFlows.remove(direction);
+                continue;
+            }
+
+            TankConnectionFlow flow = tankConnectionFlows.get(direction);
+            if (flow == null) {
+                continue;
+            }
+            if (flow.remainingTicks() <= 1) {
+                tankConnectionFlows.remove(direction);
+            } else {
+                tankConnectionFlows.put(direction,
+                        new TankConnectionFlow(flow.direction(), flow.remainingTicks() - 1));
+            }
+        }
+    }
+
+    private boolean canPullFromTank(Direction direction) {
+        TankConnectionFlow flow = tankConnectionFlows.get(direction);
+        return flow == null || flow.direction() == TankConnectionDirection.OUTPUT;
+    }
+
+    private boolean canPushToTank(Direction direction) {
+        TankConnectionFlow flow = tankConnectionFlows.get(direction);
+        return flow == null || flow.direction() == TankConnectionDirection.INPUT;
+    }
+
+    private void markTankConnectionFlow(Direction direction,
+                                        TankConnectionDirection connectionDirection) {
+        tankConnectionFlows.put(direction,
+                new TankConnectionFlow(connectionDirection,
+                        TANK_CONNECTION_DIRECTION_DELAY_TICKS));
+    }
+
     private int receiveMana(int amount) {
         int inserted = Math.min(Math.max(0, amount), MAX_MANA - mana);
         if (inserted > 0) {
@@ -202,6 +253,14 @@ public class ManaPipeBlockEntity extends BlockEntity {
             world.setBlockState(pos, state.with(ManaPipeBlock.HAS_MANA, hasMana),
                     Block.NOTIFY_LISTENERS);
         }
+    }
+
+    private enum TankConnectionDirection {
+        INPUT,
+        OUTPUT
+    }
+
+    private record TankConnectionFlow(TankConnectionDirection direction, int remainingTicks) {
     }
 
     @Override
