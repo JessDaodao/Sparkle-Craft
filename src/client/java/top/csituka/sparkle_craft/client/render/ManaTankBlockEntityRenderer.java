@@ -1,5 +1,6 @@
 package top.csituka.sparkle_craft.client.render;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -12,6 +13,8 @@ import net.minecraft.util.math.Direction;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import top.csituka.sparkle_craft.block.ModBlocks;
+import top.csituka.sparkle_craft.block.custom.ManaPipeBlock;
+import top.csituka.sparkle_craft.block.custom.ManaTankBlock;
 import top.csituka.sparkle_craft.block.entity.ManaTankBlockEntity;
 import top.csituka.sparkle_craft.sparkle_craft;
 
@@ -24,6 +27,8 @@ public class ManaTankBlockEntityRenderer implements BlockEntityRenderer<ManaTank
     private static final float MIN_Y = 3.25f / 16.0f;
     private static final float MAX_Y = 12.75f / 16.0f;
     private static final float MIN_VISIBLE_HEIGHT = 1.0f / 16.0f;
+    private static final float PIPE_MIN = 5.0f / 16.0f;
+    private static final float PIPE_MAX = 11.0f / 16.0f;
 
     public ManaTankBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
     }
@@ -31,8 +36,8 @@ public class ManaTankBlockEntityRenderer implements BlockEntityRenderer<ManaTank
     @Override
     public void render(ManaTankBlockEntity blockEntity, float tickDelta, MatrixStack matrices,
                        VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        if (!blockEntity.getCachedState().isOf(ModBlocks.MANA_TANK)
-                || blockEntity.getMana() <= 0) {
+        BlockState state = blockEntity.getCachedState();
+        if (!state.isOf(ModBlocks.MANA_TANK) || blockEntity.getMana() <= 0) {
             return;
         }
 
@@ -46,6 +51,63 @@ public class ManaTankBlockEntityRenderer implements BlockEntityRenderer<ManaTank
             renderFace(vertices, entry, face, MIN_XZ, MIN_Y, MIN_XZ,
                     MAX_XZ, manaTop, MAX_XZ, overlay);
         }
+        for (Direction direction : Direction.values()) {
+            if (direction.getAxis().isHorizontal()
+                    && state.get(ManaTankBlock.getConnectionProperty(direction))
+                    && hasManaContinuation(blockEntity, direction)) {
+                renderConnection(vertices, entry, direction, overlay);
+            }
+        }
+    }
+
+    private static void renderConnection(VertexConsumer vertices, MatrixStack.Entry entry,
+                                         Direction direction, int overlay) {
+        float minX = PIPE_MIN;
+        float minY = PIPE_MIN;
+        float minZ = PIPE_MIN;
+        float maxX = PIPE_MAX;
+        float maxY = PIPE_MAX;
+        float maxZ = PIPE_MAX;
+
+        switch (direction) {
+            case NORTH -> {
+                minZ = 0.0f;
+                maxZ = PIPE_MIN;
+            }
+            case EAST -> {
+                minX = PIPE_MAX;
+                maxX = 1.0f;
+            }
+            case SOUTH -> {
+                minZ = PIPE_MAX;
+                maxZ = 1.0f;
+            }
+            case WEST -> {
+                minX = 0.0f;
+                maxX = PIPE_MIN;
+            }
+            default -> {
+                return;
+            }
+        }
+
+        for (Direction face : Direction.values()) {
+            if (face.getAxis() != direction.getAxis()) {
+                renderFace(vertices, entry, face, minX, minY, minZ,
+                        maxX, maxY, maxZ, overlay);
+            }
+        }
+    }
+
+    private static boolean hasManaContinuation(ManaTankBlockEntity blockEntity,
+                                               Direction direction) {
+        if (blockEntity.getWorld() == null) {
+            return false;
+        }
+        BlockState neighborState = blockEntity.getWorld().getBlockState(
+                blockEntity.getPos().offset(direction));
+        return neighborState.isOf(ModBlocks.MANA_PIPE)
+                && neighborState.get(ManaPipeBlock.HAS_MANA);
     }
 
     private static void renderFace(VertexConsumer vertices, MatrixStack.Entry entry,

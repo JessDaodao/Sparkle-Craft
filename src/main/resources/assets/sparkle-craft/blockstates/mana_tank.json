@@ -1,7 +1,39 @@
 {
-  "variants": {
-    "": {
-      "model": "sparkle-craft:block/mana_tank"
+  "multipart": [
+    {
+      "apply": {
+        "model": "sparkle-craft:block/mana_tank"
+      }
+    },
+    {
+      "when": { "north": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_arm"
+      }
+    },
+    {
+      "when": { "east": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_arm",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "south": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_arm",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": { "west": "true" },
+      "apply": {
+        "model": "sparkle-craft:block/mana_pipe_arm",
+        "y": 270,
+        "uvlock": true
+      }
     }
-  }
+  ]
 }
