@@ -29,17 +29,20 @@ public final class FlyBeaconFlightManager {
     }
 
     public static void refreshFlight(ServerPlayerEntity player) {
-        FlightGrant previous = GRANTS.get(player.getUuid());
-        boolean managed = previous == null || previous.player != player
-                ? !player.getAbilities().allowFlying
-                : previous.managed;
         PlayerAbilities abilities = player.getAbilities();
+        FlightGrant grant = GRANTS.get(player.getUuid());
+        if (grant == null || grant.player != player) {
+            grant = new FlightGrant(player, currentTick, abilities);
+        } else {
+            grant.refresh(currentTick, abilities);
+        }
         if (!abilities.allowFlying) {
             abilities.allowFlying = true;
             player.sendAbilitiesUpdate();
-            managed = true;
+            grant.takeOwnership();
         }
-        GRANTS.put(player.getUuid(), new FlightGrant(player, currentTick, managed));
+        grant.recordAppliedState(abilities);
+        GRANTS.put(player.getUuid(), grant);
     }
 
     private static void revokeStaleGrants() {
@@ -60,13 +63,18 @@ public final class FlyBeaconFlightManager {
     }
 
     private static void revokeGrant(FlightGrant grant, boolean updateClient) {
-        if (grant == null || !grant.managed || grant.player.isCreative()
+        if (grant == null || !grant.ownsPermission || grant.externallyModified
+                || grant.player.isCreative()
                 || grant.player.isSpectator()) {
             return;
         }
         PlayerAbilities abilities = grant.player.getAbilities();
-        abilities.allowFlying = false;
-        abilities.flying = false;
+        if (abilities.allowFlying != grant.lastAppliedAllowFlying
+                || Float.compare(abilities.getFlySpeed(), grant.lastFlySpeed) != 0) {
+            return;
+        }
+        abilities.allowFlying = grant.restoreAllowFlying;
+        abilities.flying = grant.restoreFlying;
         if (updateClient) {
             grant.player.sendAbilitiesUpdate();
         }
@@ -75,13 +83,40 @@ public final class FlyBeaconFlightManager {
     private static final class FlightGrant {
 
         private final ServerPlayerEntity player;
-        private final long lastTick;
-        private final boolean managed;
+        private boolean restoreAllowFlying;
+        private boolean restoreFlying;
+        private long lastTick;
+        private boolean ownsPermission;
+        private boolean externallyModified;
+        private boolean lastAppliedAllowFlying;
+        private float lastFlySpeed;
 
-        private FlightGrant(ServerPlayerEntity player, long lastTick, boolean managed) {
+        private FlightGrant(ServerPlayerEntity player, long lastTick, PlayerAbilities abilities) {
             this.player = player;
             this.lastTick = lastTick;
-            this.managed = managed;
+            this.restoreAllowFlying = abilities.allowFlying;
+            this.restoreFlying = abilities.flying;
+            this.ownsPermission = !abilities.allowFlying;
+            recordAppliedState(abilities);
+        }
+
+        private void refresh(long tick, PlayerAbilities abilities) {
+            lastTick = tick;
+            if ((abilities.allowFlying && abilities.allowFlying != lastAppliedAllowFlying)
+                    || Float.compare(abilities.getFlySpeed(), lastFlySpeed) != 0) {
+                externallyModified = true;
+            }
+        }
+
+        private void takeOwnership() {
+            ownsPermission = true;
+            restoreAllowFlying = false;
+            restoreFlying = false;
+        }
+
+        private void recordAppliedState(PlayerAbilities abilities) {
+            lastAppliedAllowFlying = abilities.allowFlying;
+            lastFlySpeed = abilities.getFlySpeed();
         }
     }
 }

@@ -23,8 +23,8 @@ public class ManaPipeBlockEntity extends BlockEntity {
 
     public static final int MAX_MANA = 100;
     public static final int TRANSFER_RATE = 10;
-    private static final int MAX_NETWORK_SEARCH = 256;
     private static final int TANK_CONNECTION_DIRECTION_DELAY_TICKS = 20;
+    private static final String TANK_CONNECTION_FLOW_NBT_PREFIX = "TankConnectionFlow_";
     private static final Map<World, ManaNetworkCache> NETWORK_CACHES = new WeakHashMap<>();
 
     private int mana;
@@ -206,14 +206,16 @@ public class ManaPipeBlockEntity extends BlockEntity {
                     continue;
                 }
                 BlockPos neighborPos = currentPos.offset(direction);
+                if (!world.isChunkLoaded(neighborPos)) {
+                    continue;
+                }
+                BlockState neighborState = world.getBlockState(neighborPos);
                 BlockEntity neighbor = world.getBlockEntity(neighborPos);
                 if (neighbor instanceof FlyBeaconBlockEntity beacon
                         && consumers.add(neighborPos)) {
                     demand += beacon.getManaSpace();
                 }
-                if (world.getBlockState(neighborPos).isOf(ModBlocks.MANA_PIPE)
-                        && visited.size() < MAX_NETWORK_SEARCH
-                        && visited.add(neighborPos)) {
+                if (neighborState.isOf(ModBlocks.MANA_PIPE) && visited.add(neighborPos)) {
                     pending.addLast(neighborPos);
                 }
             }
@@ -243,11 +245,12 @@ public class ManaPipeBlockEntity extends BlockEntity {
         if (tankConnectionFlows.isEmpty()) {
             return;
         }
+        boolean changed = false;
         for (Direction direction : Direction.values()) {
             if (!state.get(ManaPipeBlock.getConnectionProperty(direction))
                     || !(world.getBlockEntity(pos.offset(direction))
                     instanceof ManaTankBlockEntity)) {
-                tankConnectionFlows.remove(direction);
+                changed |= tankConnectionFlows.remove(direction) != null;
                 continue;
             }
 
@@ -257,10 +260,15 @@ public class ManaPipeBlockEntity extends BlockEntity {
             }
             if (flow.remainingTicks() <= 1) {
                 tankConnectionFlows.remove(direction);
+                changed = true;
             } else {
                 tankConnectionFlows.put(direction,
                         new TankConnectionFlow(flow.direction(), flow.remainingTicks() - 1));
+                changed = true;
             }
+        }
+        if (changed) {
+            markDirty();
         }
     }
 
@@ -279,6 +287,7 @@ public class ManaPipeBlockEntity extends BlockEntity {
         tankConnectionFlows.put(direction,
                 new TankConnectionFlow(connectionDirection,
                         TANK_CONNECTION_DIRECTION_DELAY_TICKS));
+        markDirty();
     }
 
     private int receiveMana(int amount) {
@@ -345,11 +354,33 @@ public class ManaPipeBlockEntity extends BlockEntity {
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         nbt.putInt("Mana", mana);
+        for (Map.Entry<Direction, TankConnectionFlow> entry
+                : tankConnectionFlows.entrySet()) {
+            TankConnectionFlow flow = entry.getValue();
+            int encodedFlow = flow.direction() == TankConnectionDirection.INPUT
+                    ? flow.remainingTicks()
+                    : -flow.remainingTicks();
+            nbt.putInt(TANK_CONNECTION_FLOW_NBT_PREFIX + entry.getKey().getName(), encodedFlow);
+        }
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         mana = Math.max(0, Math.min(MAX_MANA, nbt.getInt("Mana")));
+        tankConnectionFlows.clear();
+        for (Direction direction : Direction.values()) {
+            int encodedFlow = nbt.getInt(TANK_CONNECTION_FLOW_NBT_PREFIX + direction.getName());
+            if (encodedFlow == 0) {
+                continue;
+            }
+            int remainingTicks = (int) Math.min(TANK_CONNECTION_DIRECTION_DELAY_TICKS,
+                    Math.abs((long) encodedFlow));
+            TankConnectionDirection connectionDirection = encodedFlow > 0
+                    ? TankConnectionDirection.INPUT
+                    : TankConnectionDirection.OUTPUT;
+            tankConnectionFlows.put(direction,
+                    new TankConnectionFlow(connectionDirection, remainingTicks));
+        }
     }
 }

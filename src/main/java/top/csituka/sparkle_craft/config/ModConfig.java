@@ -2,6 +2,7 @@ package top.csituka.sparkle_craft.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import net.fabricmc.loader.api.FabricLoader;
 import top.csituka.sparkle_craft.sparkle_craft;
 
@@ -36,7 +37,7 @@ public final class ModConfig {
                     return loaded;
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | JsonParseException e) {
             sparkle_craft.LOGGER.warn("Failed to load config from {}", CONFIG_PATH, e);
         }
         return new ConfigData();

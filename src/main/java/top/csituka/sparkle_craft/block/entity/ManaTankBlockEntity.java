@@ -28,6 +28,7 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
     private int inputAccumulator;
     private int outputAccumulator;
     private int flowTick;
+    private boolean manaSyncPending;
     private final PropertyDelegate propertyDelegate = new PropertyDelegate() {
         @Override
         public int get(int index) {
@@ -81,6 +82,7 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
             blockEntity.outputAccumulator = 0;
             blockEntity.flowTick = 0;
         }
+        blockEntity.syncManaIfNeeded();
     }
 
     public int receiveMana(int amount) {
@@ -116,9 +118,17 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
     private void onManaChanged() {
         markDirty();
         if (world != null && !world.isClient) {
-            BlockState state = getCachedState();
-            world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
+            manaSyncPending = true;
         }
+    }
+
+    private void syncManaIfNeeded() {
+        if (!manaSyncPending || world == null || world.isClient) {
+            return;
+        }
+        manaSyncPending = false;
+        BlockState state = getCachedState();
+        world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
     }
 
     @Override
