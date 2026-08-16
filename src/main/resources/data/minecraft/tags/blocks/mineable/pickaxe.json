@@ -6,6 +6,7 @@
     "sparkle-craft:crystal_mana_extractor",
     "sparkle-craft:mana_pipe",
     "sparkle-craft:mana_tank",
+    "sparkle-craft:large_mana_tank",
     "sparkle-craft:fly_beacon"
   ]
 }

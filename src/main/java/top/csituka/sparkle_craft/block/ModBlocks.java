@@ -12,6 +12,7 @@ import net.minecraft.util.Identifier;
 import top.csituka.sparkle_craft.sparkle_craft;
 import top.csituka.sparkle_craft.block.custom.CrystalManaExtractorBlock;
 import top.csituka.sparkle_craft.block.custom.FlyBeaconBlock;
+import top.csituka.sparkle_craft.block.custom.LargeManaTankBlock;
 import top.csituka.sparkle_craft.block.custom.ManaPipeBlock;
 import top.csituka.sparkle_craft.block.custom.ManaTankBlock;
 
@@ -35,6 +36,12 @@ public class ModBlocks {
 
     public static final Block MANA_TANK = registerBlock("mana_tank",
             new ManaTankBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK)
+                    .strength(3.5f)
+                    .requiresTool()
+                    .nonOpaque()));
+
+    public static final Block LARGE_MANA_TANK = registerBlock("large_mana_tank",
+            new LargeManaTankBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK)
                     .strength(3.5f)
                     .requiresTool()
                     .nonOpaque()));

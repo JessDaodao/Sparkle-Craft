@@ -125,7 +125,8 @@ public class ManaPipeBlock extends BlockWithEntity {
         if (neighborState.isOf(ModBlocks.FLY_BEACON)) {
             return true;
         }
-        if (neighborState.isOf(ModBlocks.MANA_TANK)) {
+        if (neighborState.isOf(ModBlocks.MANA_TANK)
+                || neighborState.isOf(ModBlocks.LARGE_MANA_TANK)) {
             return directionFromPipe.getAxis().isHorizontal();
         }
         return neighborState.isOf(ModBlocks.CRYSTAL_MANA_EXTRACTOR)

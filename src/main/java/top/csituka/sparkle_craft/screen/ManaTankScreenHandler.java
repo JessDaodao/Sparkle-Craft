@@ -21,7 +21,7 @@ public class ManaTankScreenHandler extends ScreenHandler {
     private final ScreenHandlerContext context;
 
     public ManaTankScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new ArrayPropertyDelegate(3), ScreenHandlerContext.EMPTY);
+        this(syncId, playerInventory, new ArrayPropertyDelegate(4), ScreenHandlerContext.EMPTY);
     }
 
     public ManaTankScreenHandler(int syncId, PlayerInventory playerInventory,
@@ -35,7 +35,7 @@ public class ManaTankScreenHandler extends ScreenHandler {
                                   PropertyDelegate propertyDelegate,
                                   ScreenHandlerContext context) {
         super(ModScreenHandlers.MANA_TANK, syncId);
-        checkDataCount(propertyDelegate, 3);
+        checkDataCount(propertyDelegate, 4);
         this.propertyDelegate = propertyDelegate;
         this.context = context;
 
@@ -85,7 +85,12 @@ public class ManaTankScreenHandler extends ScreenHandler {
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return canUse(context, player, ModBlocks.MANA_TANK);
+        return context.get((world, pos) -> {
+            boolean isTank = world.getBlockState(pos).isOf(ModBlocks.MANA_TANK)
+                    || world.getBlockState(pos).isOf(ModBlocks.LARGE_MANA_TANK);
+            return isTank && player.squaredDistanceTo(
+                    pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D;
+        }, true);
     }
 
     public int getMana() {
@@ -93,11 +98,11 @@ public class ManaTankScreenHandler extends ScreenHandler {
     }
 
     public int getMaxMana() {
-        return ManaTankBlockEntity.MAX_MANA;
+        return propertyDelegate.get(3);
     }
 
     public int getScaledMana(int height) {
-        return Math.min(height, getMana() * height / getMaxMana());
+        return Math.min(height, getMana() * height / Math.max(1, getMaxMana()));
     }
 
     public int getInputPerSecond() {

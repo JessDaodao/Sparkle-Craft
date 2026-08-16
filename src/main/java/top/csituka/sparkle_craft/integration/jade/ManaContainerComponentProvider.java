@@ -52,7 +52,7 @@ public enum ManaContainerComponentProvider implements IBlockComponentProvider,
             return new ManaData(manaPipe.getMana(), ManaPipeBlockEntity.MAX_MANA);
         }
         if (blockEntity instanceof ManaTankBlockEntity manaTank) {
-            return new ManaData(manaTank.getMana(), ManaTankBlockEntity.MAX_MANA);
+            return new ManaData(manaTank.getMana(), manaTank.getMaxMana());
         }
         if (blockEntity instanceof CrystalManaExtractorBlockEntity extractor) {
             return new ManaData(extractor.getMana(), CrystalManaExtractorBlockEntity.MAX_MANA);

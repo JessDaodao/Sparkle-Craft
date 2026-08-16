@@ -3,6 +3,7 @@ package top.csituka.sparkle_craft.block.entity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
@@ -31,9 +32,10 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
         @Override
         public int get(int index) {
             return switch (index) {
-                case 0 -> mana;
+                case 0 -> getMana();
                 case 1 -> inputPerSecond;
                 case 2 -> outputPerSecond;
+                case 3 -> getMaxMana();
                 default -> 0;
             };
         }
@@ -41,7 +43,7 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case 0 -> mana = Math.max(0, Math.min(MAX_MANA, value));
+                case 0 -> mana = Math.max(0, Math.min(getMaxMana(), value));
                 case 1 -> inputPerSecond = Math.max(0, value);
                 case 2 -> outputPerSecond = Math.max(0, value);
             }
@@ -49,16 +51,24 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
 
         @Override
         public int size() {
-            return 3;
+            return 4;
         }
     };
 
     public ManaTankBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.MANA_TANK, pos, state);
+        this(ModBlockEntities.MANA_TANK, pos, state);
+    }
+
+    protected ManaTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     public int getMana() {
         return mana;
+    }
+
+    public int getMaxMana() {
+        return MAX_MANA;
     }
 
     public static void tick(World world, BlockPos pos, BlockState state,
@@ -74,7 +84,7 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
     }
 
     public int receiveMana(int amount) {
-        int inserted = Math.min(Math.max(0, amount), MAX_MANA - mana);
+        int inserted = Math.min(Math.max(0, amount), getMaxMana() - mana);
         if (inserted > 0) {
             mana += inserted;
             inputAccumulator += inserted;
@@ -130,6 +140,6 @@ public class ManaTankBlockEntity extends BlockEntity implements NamedScreenHandl
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
-        mana = Math.max(0, Math.min(MAX_MANA, nbt.getInt("Mana")));
+        mana = Math.max(0, Math.min(getMaxMana(), nbt.getInt("Mana")));
     }
 }

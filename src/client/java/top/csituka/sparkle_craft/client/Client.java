@@ -24,9 +24,13 @@ public class Client implements ClientModInitializer {
         HandledScreens.register(ModScreenHandlers.MANA_TANK, ManaTankScreen::new);
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.MANA_PIPE, RenderLayer.getTranslucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.MANA_TANK, RenderLayer.getTranslucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.LARGE_MANA_TANK,
+                RenderLayer.getTranslucent());
         BlockEntityRendererFactories.register(ModBlockEntities.MANA_PIPE,
                 ManaPipeBlockEntityRenderer::new);
         BlockEntityRendererFactories.register(ModBlockEntities.MANA_TANK,
+                ManaTankBlockEntityRenderer::new);
+        BlockEntityRendererFactories.register(ModBlockEntities.LARGE_MANA_TANK,
                 ManaTankBlockEntityRenderer::new);
         FlyBeaconBarrierRenderer.register();
     }

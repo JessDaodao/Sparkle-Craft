@@ -22,6 +22,7 @@ public class ModItemGroups {
                 entries.add(ModBlocks.CRYSTAL_MANA_EXTRACTOR);
                 entries.add(ModBlocks.MANA_PIPE);
                 entries.add(ModBlocks.MANA_TANK);
+                entries.add(ModBlocks.LARGE_MANA_TANK);
                 entries.add(ModBlocks.FLY_BEACON);
             })
             .build();

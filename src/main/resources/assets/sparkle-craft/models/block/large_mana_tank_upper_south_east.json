@@ -1,0 +1,30 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "metal": "sparkle-craft:block/mana_tank_metal",
+    "tank": "sparkle-craft:block/mana_tank",
+    "particle": "#metal"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [13, 13, 13],
+      "faces": {
+        "south": { "texture": "#tank" },
+        "east": { "texture": "#tank" }
+      }
+    },
+    {
+      "from": [0, 13, 0],
+      "to": [14, 16, 14],
+      "faces": {
+        "down": { "texture": "#metal", "uv": [8, 8, 16, 16] },
+        "up": { "texture": "#metal", "uv": [8, 8, 16, 16] },
+        "north": { "texture": "#metal" },
+        "south": { "texture": "#metal" },
+        "west": { "texture": "#metal" },
+        "east": { "texture": "#metal" }
+      }
+    }
+  ]
+}

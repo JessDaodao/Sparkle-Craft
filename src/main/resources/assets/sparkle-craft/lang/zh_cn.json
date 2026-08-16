@@ -13,6 +13,7 @@
   "block.sparkle-craft.crystal_mana_extractor": "魔化器",
   "block.sparkle-craft.mana_pipe": "魔力导管",
   "block.sparkle-craft.mana_tank": "魔力储罐",
+  "block.sparkle-craft.large_mana_tank": "大型魔力储罐",
   "block.sparkle-craft.fly_beacon": "飞行信标",
   "gui.sparkle-craft.crystal_mana_extractor.mana": "魔力：%s / %s",
   "gui.sparkle-craft.fly_beacon.mana": "魔力：%s / %s",

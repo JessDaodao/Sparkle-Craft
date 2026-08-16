@@ -1,0 +1,148 @@
+{
+  "multipart": [
+    {
+      "when": { "facing": "east", "part": "controller", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_north_west" }
+    },
+    {
+      "when": { "facing": "east", "part": "forward", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_north_east" }
+    },
+    {
+      "when": { "facing": "east", "part": "right", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_south_west" }
+    },
+    {
+      "when": { "facing": "east", "part": "diagonal", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_south_east" }
+    },
+    {
+      "when": { "facing": "east", "part": "controller", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_north_west" }
+    },
+    {
+      "when": { "facing": "east", "part": "forward", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_north_east" }
+    },
+    {
+      "when": { "facing": "east", "part": "right", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_south_west" }
+    },
+    {
+      "when": { "facing": "east", "part": "diagonal", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_south_east" }
+    },
+    {
+      "when": { "facing": "south", "part": "controller", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_north_west", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "facing": "south", "part": "forward", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_north_east", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "facing": "south", "part": "right", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_south_west", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "facing": "south", "part": "diagonal", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_south_east", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "facing": "south", "part": "controller", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_north_west", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "facing": "south", "part": "forward", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_north_east", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "facing": "south", "part": "right", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_south_west", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "facing": "south", "part": "diagonal", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_south_east", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "facing": "west", "part": "controller", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_north_west", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "facing": "west", "part": "forward", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_north_east", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "facing": "west", "part": "right", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_south_west", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "facing": "west", "part": "diagonal", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_south_east", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "facing": "west", "part": "controller", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_north_west", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "facing": "west", "part": "forward", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_north_east", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "facing": "west", "part": "right", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_south_west", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "facing": "west", "part": "diagonal", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_south_east", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "facing": "north", "part": "controller", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_north_west", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "facing": "north", "part": "forward", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_north_east", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "facing": "north", "part": "right", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_south_west", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "facing": "north", "part": "diagonal", "half": "lower" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_south_east", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "facing": "north", "part": "controller", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_north_west", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "facing": "north", "part": "forward", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_north_east", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "facing": "north", "part": "right", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_south_west", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "facing": "north", "part": "diagonal", "half": "upper" },
+      "apply": { "model": "sparkle-craft:block/large_mana_tank_upper_south_east", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "north": "true" },
+      "apply": { "model": "sparkle-craft:block/mana_pipe_arm" }
+    },
+    {
+      "when": { "east": "true" },
+      "apply": { "model": "sparkle-craft:block/mana_pipe_arm", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "south": "true" },
+      "apply": { "model": "sparkle-craft:block/mana_pipe_arm", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "west": "true" },
+      "apply": { "model": "sparkle-craft:block/mana_pipe_arm", "y": 270, "uvlock": true }
+    }
+  ]
+}
