@@ -1,7 +1,7 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "pipe": "sparkle-craft:block/mana_pipe",
+    "pipe": "sparkle-craft:block/glass",
     "particle": "#pipe"
   },
   "elements": [

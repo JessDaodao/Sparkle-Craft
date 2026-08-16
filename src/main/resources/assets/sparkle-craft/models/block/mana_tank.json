@@ -2,7 +2,7 @@
   "ambientocclusion": false,
   "textures": {
     "metal": "sparkle-craft:block/mana_tank_metal",
-    "tank": "sparkle-craft:block/mana_tank",
+    "tank": "sparkle-craft:block/glass",
     "particle": "#metal"
   },
   "elements": [
