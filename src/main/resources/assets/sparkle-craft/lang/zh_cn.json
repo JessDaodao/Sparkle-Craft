@@ -19,6 +19,6 @@
   "gui.sparkle-craft.fly_beacon.mana_label": "魔力",
   "gui.sparkle-craft.fly_beacon.enabled": "已启用",
   "gui.sparkle-craft.fly_beacon.disabled": "已停用",
-  "jade.sparkle-craft.mana_pipe.mana": "魔力：%s / %s",
-  "config.jade.plugin_sparkle-craft.mana_pipe_mana": "导管内魔力"
+  "jade.sparkle-craft.mana_container.mana": "魔力：%s / %s",
+  "config.jade.plugin_sparkle-craft.mana_pipe_mana": "容器内魔力"
 }

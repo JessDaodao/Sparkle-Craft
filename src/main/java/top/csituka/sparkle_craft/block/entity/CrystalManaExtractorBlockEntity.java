@@ -65,6 +65,10 @@ public class CrystalManaExtractorBlockEntity extends BlockEntity implements Name
         super(ModBlockEntities.CRYSTAL_MANA_EXTRACTOR, pos, state);
     }
 
+    public int getMana() {
+        return mana;
+    }
+
     public static void tick(World world, BlockPos pos, BlockState state,
                             CrystalManaExtractorBlockEntity blockEntity) {
         blockEntity.flowTick++;

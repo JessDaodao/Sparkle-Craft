@@ -134,6 +134,10 @@ public class FlyBeaconBlockEntity extends BlockEntity implements ExtendedScreenH
         return enabled && mana > 0;
     }
 
+    public int getMana() {
+        return mana;
+    }
+
     public int getManaSpace() {
         return MAX_MANA - mana;
     }
