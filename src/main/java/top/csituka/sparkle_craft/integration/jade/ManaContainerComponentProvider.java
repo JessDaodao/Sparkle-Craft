@@ -2,36 +2,22 @@ package top.csituka.sparkle_craft.integration.jade;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import snownee.jade.api.BlockAccessor;
-import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
-import snownee.jade.api.ITooltip;
-import snownee.jade.api.config.IPluginConfig;
 import top.csituka.sparkle_craft.block.entity.CrystalManaExtractorBlockEntity;
 import top.csituka.sparkle_craft.block.entity.FlyBeaconBlockEntity;
 import top.csituka.sparkle_craft.block.entity.ManaPipeBlockEntity;
 import top.csituka.sparkle_craft.block.entity.ManaTankBlockEntity;
 import top.csituka.sparkle_craft.sparkle_craft;
 
-public enum ManaContainerComponentProvider implements IBlockComponentProvider,
-        IServerDataProvider<BlockAccessor> {
+public enum ManaContainerComponentProvider implements IServerDataProvider<BlockAccessor> {
 
     INSTANCE;
 
-    private static final String MANA_TAG = "Mana";
-    private static final String MAX_MANA_TAG = "MaxMana";
-    private static final Identifier UID = new Identifier(sparkle_craft.MOD_ID, "mana_pipe_mana");
-
-    @Override
-    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        NbtCompound data = accessor.getServerData();
-        if (data.contains(MANA_TAG) && data.contains(MAX_MANA_TAG)) {
-            tooltip.add(Text.translatable("jade.sparkle-craft.mana_container.mana",
-                    data.getInt(MANA_TAG), data.getInt(MAX_MANA_TAG)));
-        }
-    }
+    static final String MANA_TAG = "Mana";
+    static final String MAX_MANA_TAG = "MaxMana";
+    static final Identifier UID = new Identifier(sparkle_craft.MOD_ID, "mana_pipe_mana");
 
     @Override
     public void appendServerData(NbtCompound data, BlockAccessor accessor) {

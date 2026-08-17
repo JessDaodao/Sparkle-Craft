@@ -1,9 +1,5 @@
 package top.csituka.sparkle_craft.integration.jade;
 
-import top.csituka.sparkle_craft.block.custom.CrystalManaExtractorBlock;
-import top.csituka.sparkle_craft.block.custom.FlyBeaconBlock;
-import top.csituka.sparkle_craft.block.custom.ManaPipeBlock;
-import top.csituka.sparkle_craft.block.custom.ManaTankBlock;
 import top.csituka.sparkle_craft.block.entity.CrystalManaExtractorBlockEntity;
 import top.csituka.sparkle_craft.block.entity.FlyBeaconBlockEntity;
 import top.csituka.sparkle_craft.block.entity.ManaPipeBlockEntity;
@@ -12,6 +8,9 @@ import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 @WailaPlugin
 public class SparkleCraftJadePlugin implements IWailaPlugin {
@@ -30,13 +29,15 @@ public class SparkleCraftJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        registration.registerBlockComponent(ManaContainerComponentProvider.INSTANCE,
-                ManaPipeBlock.class);
-        registration.registerBlockComponent(ManaContainerComponentProvider.INSTANCE,
-                ManaTankBlock.class);
-        registration.registerBlockComponent(ManaContainerComponentProvider.INSTANCE,
-                CrystalManaExtractorBlock.class);
-        registration.registerBlockComponent(ManaContainerComponentProvider.INSTANCE,
-                FlyBeaconBlock.class);
+        try {
+            Class<?> clientProvider = Class.forName(
+                    "top.csituka.sparkle_craft.integration.jade.ManaContainerJadeClientProvider");
+            Method register = clientProvider.getMethod("register", IWailaClientRegistration.class);
+            register.invoke(null, registration);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                 | InvocationTargetException exception) {
+            throw new IllegalStateException(
+                    "Unable to register Sparkle Craft Jade components", exception);
+        }
     }
 }
