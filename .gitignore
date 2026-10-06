@@ -27,7 +27,6 @@ replay_pid*
 .vscode
 .claude
 .gradle
-gradle
 .idea
 build
 run
